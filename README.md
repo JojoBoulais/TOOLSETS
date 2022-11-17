@@ -9,3 +9,6 @@ Card to Track - From selected Camera, rgb source and card It create 2D transform
 
 
 Export Dependencies - PYQT widget that gets all dependencies from the current nuke script or from selected nodes and copies them to a specified location in respective subfolders.
+
+
+Operation godray - Godray using blinkscript node with more controles.
