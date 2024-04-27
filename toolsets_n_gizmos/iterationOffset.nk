@@ -1,0 +1,148 @@
+set cut_paste_input [stack 0]
+version 12.2 v4
+push $cut_paste_input
+Group {
+ name IterationOffset1
+ knobChanged "\nimport nuke\n\n\n###MAIN###\n\n\ndef main():\n\n    n = nuke.thisNode()\n    k = nuke.thisKnob()\n    iterations = int(n\['iterations'].value())\n    unlink = n\['unlinkAlphaOffset'].value()\n    rotate = n\['iterationRotate'].value()\n\n\n\n\n\n\n    if k.name() == 'iterations':\n        with n:\n            if iterations < 1:\n                k.setValue(1)\n            elif iterations == 1:\n                originals = getOriginalsNodes()\n                clearExceptOriginals(originals)\n                setTransformRotate(rotate)\n            elif iterations == 2:\n                originals = getOriginalsNodes()\n                clearExceptOriginals(originals)\n                twoIterations(originals, unlink, rotate)\n                setTransformRotate(rotate)\n            elif iterations > 2:\n                originals = getOriginalsNodes()\n                clearExceptOriginals(originals)\n                moreIterations(iterations, originals, unlink, rotate)\n                setTransformRotate(rotate)\n\n    elif k.name() == 'unlinkAlphaOffset':\n        unlink = k.value()\n        if unlink == True:\n            n\['unlinkTranslate'].setVisible(True)\n            n\['unlinkScale'].setVisible(True)\n            n\['unlinkRotate'].setVisible(True)\n            n\['unlinkCenter'].setVisible(True)\n            with n:\n                if iterations < 1:\n                    k.setValue(1)\n                elif iterations == 1:\n                    originals = getOriginalsNodes()\n                    clearExceptOriginals(originals)\n                    setTransformRotate(rotate)\n                elif iterations == 2:\n                    originals = getOriginalsNodes()\n                    clearExceptOriginals(originals)\n                    twoIterations(originals, unlink, rotate)\n                    setTransformRotate(rotate)\n                else:\n                    originals = getOriginalsNodes()\n                    clearExceptOriginals(originals)\n                    moreIterations(iterations, originals, unlink, rotate)\n                    setTransformRotate(rotate)\n\n\n        else:\n            n\['unlinkTranslate'].setVisible(False)\n            n\['unlinkScale'].setVisible(False)\n            n\['unlinkRotate'].setVisible(False)\n            n\['unlinkCenter'].setVisible(False)\n            with n:\n                if iterations < 1:\n                    k.setValue(1)\n                elif iterations == 1:\n                    originals = getOriginalsNodes()\n                    clearExceptOriginals(originals)\n                    setTransformRotate(rotate)\n                elif iterations == 2:\n                    originals = getOriginalsNodes()\n                    clearExceptOriginals(originals)\n                    twoIterations(originals, unlink, rotate)\n                    setTransformRotate(rotate)\n                else:\n                    originals = getOriginalsNodes()\n                    clearExceptOriginals(originals)\n                    moreIterations(iterations, originals, unlink, rotate)\n                    setTransformRotate(rotate)\n\n    elif k.name() == \"iterationRotate\":\n        with n:\n            setTransformRotate(rotate)\n\n\n    else:\n        pass\n\n\n\ndef unselectAll():\n    for node in nuke.allNodes():\n        node.setSelected(False)\n\n\ndef clearExceptOriginals(originals):\n    allNodes = nuke.allNodes()\n    for node in originals.values():\n        try:\n            allNodes.remove(node)\n        except:\n            pass\n\n    for n in allNodes:\n        nuke.delete(n)\n\n    originals\[\"oriTransform\"].setInput(0,originals\[\"oriGrade\"])\n\n\n\ndef setTransformRotate(rotate):\n\n    transform = \[]\n\n\n    for node in nuke.allNodes():\n        if node.Class() == \"Transform\" and node.name() != \"oriTransform\" and node.name() != \"transBlend1\" and node.name() != \"transBlend2\":\n            transform.append(node)\n\n    if rotate == True:\n        for node in transform:\n            node\[\"rotate\"].setExpression(\"oriTransform.rotate\")\n\n    else:\n        for node in transform:\n            node\[\"rotate\"].setExpression(\"\")\n\n\n\ndef getOriginalsNodes():\n    Mix = nuke.toNode(\"Mix1\")\n    oriKeymix = nuke.toNode(\"Keymix2\")\n    oriTransform = nuke.toNode('oriTransform')\n    oriGrade = nuke.toNode(\"oriGrade\")\n    oriAlphaDot = nuke.toNode(\"Dot3\")\n    oriBottomDot = nuke.toNode(\"Dot7\")\n    oriBottomRDot = nuke.toNode(\"Dot5\")\n    output = nuke.toNode(\"Output1\")\n    RGB = nuke.toNode('RGB')\n    RGBDot = nuke.toNode('Dot1')\n    ALPHA = nuke.toNode(\"ALPHA\")\n    MASK = nuke.toNode(\"MASK\")\n    transBlend1 = nuke.toNode(\"transBlend1\")\n    transBlend2 = nuke.toNode(\"transBlend2\")\n    blurBlend1 = nuke.toNode(\"blurBlend1\")\n\n\n\n    originals = \{\}\n    originals\['Mix'] = Mix\n    originals\['oriKeymix'] = oriKeymix\n    originals\['oriTransform'] = oriTransform\n    originals\['oriGrade'] = oriGrade\n    originals\['oriAlphaDot'] = oriAlphaDot\n    originals\['oriBottomDot'] = oriBottomDot\n    originals\['oriBottomRDot'] = oriBottomRDot\n    originals\['output'] = output\n    originals\['RGB'] = RGB\n    originals\['RGBDot'] = RGBDot\n    originals\['ALPHA'] = ALPHA\n    originals\['MASK'] = MASK\n    originals\[\"blurBlend1\"] = blurBlend1\n    originals\[\"transBlend2\"] = transBlend2\n    originals\[\"transBlend1\"] = transBlend1\n\n\n    return originals\n\n\ndef twoIterations(originals, unlink, rotate):\n    ### CREATE A SECOND ITERATION ###\n    Grade1 = nuke.createNode(\"Grade\", inpanel = False)\n    Grade1\[\"white\"].setExpression(\"oriGrade.white\")\n    Grade1\['xpos'].setValue(int(originals\[\"oriTransform\"]\['xpos'].value()))\n    Grade1\['ypos'].setValue(int(originals\[\"oriTransform\"]\['ypos'].value()) + 150)\n    Grade1.setInput(0, originals\[\"oriTransform\"])\n\n    unselectAll()\n\n    Transform1 = nuke.createNode(\"Transform\", inpanel = False)\n    Transform1\[\"translate\"].setExpression(\"oriTransform.translate\")\n    if rotate ==True:\n        Transform1\[\"rotate\"].setExpression(\"oriTransform.rotate\")\n    Transform1\['xpos'].setValue(int(originals\[\"oriTransform\"]\['xpos'].value()))\n    Transform1\['ypos'].setValue(int(originals\[\"oriTransform\"]\['ypos'].value()) + 300)\n    Transform1.setInput(0, Grade1)\n\n    unselectAll()\n\n    if unlink == True:\n        alphaTransform1 = nuke.createNode(\"Transform\", inpanel = False)\n        alphaTransform1\[\"translate\"].setExpression(\"oriTransform.translate\")\n        alphaTransform1\['xpos'].setValue(int(originals\[\"oriAlphaDot\"]\['xpos'].value()))\n        alphaTransform1\['ypos'].setValue(int(originals\[\"oriAlphaDot\"]\['ypos'].value()) + 300)\n        alphaTransform1\['translate'].setExpression('parent.unlinkTranslate')\n        alphaTransform1\['rotate'].setExpression('parent.unlinkRotate')\n        alphaTransform1\['scale'].setExpression('parent.unlinkScale')\n        alphaTransform1\['center'].setExpression('parent.unlinkCenter')\n        alphaTransform1.setInput(0, originals\['transBlend2'])\n    else:\n        alphaTransform1 = nuke.createNode(\"Transform\", inpanel=False)\n        alphaTransform1\[\"translate\"].setExpression(\"oriTransform.translate\")\n        alphaTransform1\['xpos'].setValue(int(originals\[\"oriAlphaDot\"]\['xpos'].value()))\n        alphaTransform1\['ypos'].setValue(int(originals\[\"oriAlphaDot\"]\['ypos'].value()) + 300)\n        alphaTransform1.setInput(0, originals\['transBlend2'])\n\n    unselectAll()\n\n    Keymix1 = nuke.createNode(\"Keymix\", inpanel = False)\n    Keymix1\['xpos'].setValue(int(originals\['oriKeymix']\['xpos'].value()))\n    Keymix1\['ypos'].setValue(int(originals\['oriKeymix']\['ypos'].value()) + 300)\n    Keymix1.setInput(0, originals\['oriKeymix'])\n    Keymix1.setInput(1, Transform1)\n    Keymix1.setInput(2, alphaTransform1)\n\n    unselectAll()\n\n    originals\['oriBottomDot'].setInput(0, Keymix1)\n\n\ndef moreIterations(iterations, originals, unlink, rotate):\n    Grade1 = nuke.createNode(\"Grade\", inpanel=False)\n    Grade1\[\"white\"].setExpression(\"oriGrade.white\")\n    Grade1\['xpos'].setValue(int(originals\['oriTransform']\['xpos'].value()))\n    Grade1\['ypos'].setValue(int(originals\['oriTransform']\['ypos'].value()) + 150)\n    Grade1.setInput(0, originals\['oriTransform'])\n\n    unselectAll()\n\n    Transform1 = nuke.createNode(\"Transform\", inpanel=False)\n    Transform1\[\"translate\"].setExpression(\"oriTransform.translate\")\n    if rotate ==True:\n        Transform1\[\"rotate\"].setExpression(\"oriTransform.rotate\")\n    Transform1\['xpos'].setValue(int(originals\['oriTransform']\['xpos'].value()))\n    Transform1\['ypos'].setValue(int(originals\['oriTransform']\['ypos'].value()) + 300)\n    Transform1.setInput(0, Grade1)\n\n    unselectAll()\n\n    if unlink == True:\n        alphaTransform1 = nuke.createNode(\"Transform\", inpanel=False)\n        alphaTransform1\[\"translate\"].setExpression(\"oriTransform.translate\")\n        alphaTransform1\['xpos'].setValue(int(originals\[\"oriAlphaDot\"]\['xpos'].value()))\n        alphaTransform1\['ypos'].setValue(int(originals\[\"oriAlphaDot\"]\['ypos'].value()) + 300)\n        alphaTransform1\['translate'].setExpression('parent.unlinkTranslate')\n        alphaTransform1\['rotate'].setExpression('parent.unlinkRotate')\n        alphaTransform1\['scale'].setExpression('parent.unlinkScale')\n        alphaTransform1\['center'].setExpression('parent.unlinkCenter')\n        alphaTransform1.setInput(0, originals\['transBlend2'])\n    else:\n        alphaTransform1 = nuke.createNode(\"Transform\", inpanel=False)\n        alphaTransform1\[\"translate\"].setExpression(\"oriTransform.translate\")\n        alphaTransform1\['xpos'].setValue(int(originals\[\"oriAlphaDot\"]\['xpos'].value()))\n        alphaTransform1\['ypos'].setValue(int(originals\[\"oriAlphaDot\"]\['ypos'].value()) + 300)\n        alphaTransform1.setInput(0, originals\['transBlend2'])\n\n    unselectAll()\n\n    Keymix1 = nuke.createNode(\"Keymix\", inpanel = False)\n    Keymix1\['xpos'].setValue(int(originals\['oriKeymix']\['xpos'].value()))\n    Keymix1\['ypos'].setValue(int(originals\['oriKeymix']\['ypos'].value()) + 300)\n    Keymix1.setInput(0, originals\['oriKeymix'])\n    Keymix1.setInput(1, Transform1)\n    Keymix1.setInput(2, alphaTransform1)\n\n    unselectAll()\n\n    for i in xrange(2, iterations, 1):\n        Grade2 = nuke.createNode(\"Grade\", inpanel=False)\n        Grade2\[\"white\"].setExpression(\"oriGrade.white\")\n        Grade2\['xpos'].setValue(int(Grade1\['xpos'].value()))\n        Grade2\['ypos'].setValue(int(Grade1\['ypos'].value()) + 100)\n        Grade2.setInput(0, Transform1)\n\n        unselectAll()\n\n        Transform2 = nuke.createNode(\"Transform\", inpanel=False)\n        Transform2\[\"translate\"].setExpression(\"oriTransform.translate\")\n        if rotate == True:\n            Transform2\[\"rotate\"].setExpression(\"oriTransform.rotate\")\n        Transform2\['xpos'].setValue(int(Transform1\['xpos'].value()))\n        Transform2\['ypos'].setValue(int(Transform1\['ypos'].value()) + 100)\n        Transform2.setInput(0, Grade2)\n\n        unselectAll()\n\n        alphaTransform2 = nuke.createNode(\"Transform\", inpanel=False)\n        alphaTransform2\[\"translate\"].setExpression(\"oriTransform.translate\")\n        alphaTransform2\['xpos'].setValue(int(alphaTransform1\['xpos'].value()))\n        alphaTransform2\['ypos'].setValue(int(alphaTransform1\['ypos'].value()) + 100)\n        alphaTransform2.setInput(0, alphaTransform1)\n\n        unselectAll()\n\n        Keymix2 = nuke.createNode(\"Keymix\",inpanel = False)\n        Keymix2\['xpos'].setValue(int(Keymix1\['xpos'].value()))\n        Keymix2\['ypos'].setValue(int(Keymix1\['ypos'].value()) + 100)\n        Keymix2.setInput(0, Keymix1)\n        Keymix2.setInput(1, Transform2)\n        Keymix2.setInput(2, alphaTransform2)\n\n        Grade1 = Grade2\n        Transform1 = Transform2\n        alphaTransform1 = alphaTransform2\n        Keymix1 = Keymix2\n\n        unselectAll()\n\n        originals\['oriBottomDot'].setInput(0, Keymix1)\n\n\n\nmain()\n\n\n\ndel (main)\ndel(unselectAll)\ndel(clearExceptOriginals)\ndel(getOriginalsNodes)\ndel(twoIterations)\ndel(moreIterations)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+ tile_color 0xffff0000
+ label " \[value iterations]"
+ note_font_size 10
+ selected true
+ xpos 171
+ ypos -135
+ addUserKnob {20 User}
+ addUserKnob {6 gain_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+ addUserKnob {3 iterations t "number of iteration that will be performs"}
+ iterations 1
+ addUserKnob {26 ""}
+ addUserKnob {41 translate T oriTransform.translate}
+ addUserKnob {14 scale R 0 100}
+ scale {1 1}
+ addUserKnob {6 iterationRotate l "rotate on each itaration" +STARTLINE}
+ addUserKnob {7 rotate R -360 360}
+ addUserKnob {26 ""}
+ addUserKnob {6 unlinkAlphaOffset l "unlink alpha offset" +STARTLINE}
+ addUserKnob {12 unlinkTranslate l translate +HIDDEN}
+ unlinkTranslate {160 0}
+ addUserKnob {7 unlinkRotate l rotate +HIDDEN R -180 180}
+ addUserKnob {12 unlinkScale l scale +HIDDEN}
+ unlinkScale {1 1}
+ addUserKnob {12 unlinkCenter l center +HIDDEN}
+ unlinkCenter {{center} {center}}
+ addUserKnob {26 ""}
+ addUserKnob {19 gain}
+ gain {1 1 1 0}
+ addUserKnob {6 gain_panelDropped l "panel dropped state" -STARTLINE +HIDDEN}
+ addUserKnob {26 ""}
+ addUserKnob {7 blendIteration l "Blend Iteration (Blur)" R 0 200}
+ addUserKnob {26 _1 l "" +STARTLINE}
+ addUserKnob {7 Mix}
+ Mix 1
+ addUserKnob {26 ""}
+ addUserKnob {26 signature l "" t "Jordan boulais-Richard" +STARTLINE T "\n<b>JARRY<\\b>\n\n\n\n\n\n"}
+}
+ Input {
+  inputs 0
+  name MASK
+  xpos 1768
+  ypos 4097
+  number 2
+ }
+ Input {
+  inputs 0
+  name ALPHA
+  label ALPHA
+  xpos -175
+  ypos -19
+  number 1
+ }
+ Dot {
+  name Dot3
+  note_font_size 40
+  xpos -147
+  ypos 389
+ }
+set N8e589600 [stack 0]
+ Input {
+  inputs 0
+  name RGB
+  label RGB
+  xpos -40
+  ypos -15
+ }
+ Dot {
+  name Dot1
+  note_font_size 40
+  xpos -18
+  ypos 232
+ }
+set N8b78b200 [stack 0]
+ Grade {
+  white {{parent.gain} {parent.gain} {parent.gain} {parent.gain}}
+  name oriGrade
+  xpos -700
+  ypos 241
+ }
+ Transform {
+  translate {50 0}
+  rotate {{parent.rotate x1 0 x1017 0 x1022 0}}
+  scale {{parent.scale x1 0 x1017 0.8199999928 x1022 0.7791238358 x1054 0 x1056 0 x1065 0} {parent.scale x1 0 x1017 1 x1022 0.9501510276 x1054 0 x1056 0 x1065 0}}
+  center {1958 752}
+  filter Lanczos6
+  name oriTransform
+  xpos -700
+  ypos 391
+ }
+push $N8b78b200
+ Keymix {
+  inputs 3
+  bbox B
+  name Keymix2
+  xpos -480
+  ypos 385
+ }
+ Dot {
+  name Dot7
+  note_font_size 40
+  xpos 958
+  ypos 4097
+ }
+push $N8b78b200
+ Blend {
+  inputs 2+1
+  weight0 {{"1 - parent.Mix"}}
+  weight1 {{"0 + parent.Mix"}}
+  name Mix1
+  xpos 1390
+  ypos 4091
+ }
+ Output {
+  name Output1
+  xpos 1390
+  ypos 4408
+ }
+push $N8e589600
+ Transform {
+  rotate {{"(oriTransform.translate.y / oriTransform.translate.x)*45"}}
+  center {{parent.oriTransform.center+oriTransform.translate.x} {parent.oriTransform.center+oriTransform.translate.y}}
+  invert_matrix true
+  filter Lanczos6
+  name transBlend1
+  xpos -175
+  ypos 415
+ }
+ Blur {
+  size {{parent.blendIteration} 0}
+  name blurBlend1
+  xpos -175
+  ypos 457
+ }
+ Transform {
+  rotate {{"(oriTransform.translate.y / oriTransform.translate.x)*45"}}
+  center {{parent.oriTransform.center+oriTransform.translate.x} {parent.oriTransform.center+oriTransform.translate.y}}
+  filter Lanczos6
+  name transBlend2
+  xpos -175
+  ypos 511
+ }
+end_group

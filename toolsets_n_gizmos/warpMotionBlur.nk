@@ -1,0 +1,465 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+BackdropNode {
+inputs 0
+name BackdropNode1
+tile_color 0x8e42ff
+note_font_size 42
+selected true
+xpos -202
+ypos 701
+bdwidth 850
+bdheight 983
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID c262525e-6356-11ec-a488-b06ebf3868fa
+}
+BackdropNode {
+inputs 0
+name BackdropNode2
+tile_color 0x3a1bff
+label "WARP HERE"
+note_font_size 42
+selected true
+xpos 299
+ypos 877
+bdwidth 311
+bdheight 142
+z_order 1
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID e8fc9f78-6356-11ec-a488-b06ebf3868fa
+}
+push $cut_paste_input
+Dot {
+name Dot5
+label In
+note_font_size 41
+selected true
+xpos 235
+ypos 648
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID d399c9b8-6355-11ec-a488-b06ebf3868fa
+}
+Dot {
+name Dot15
+selected true
+xpos 235
+ypos 750
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID ab9366f8-6356-11ec-a488-b06ebf3868fa
+}
+set N64af5560 [stack 0]
+Remove {
+name Remove2
+selected true
+xpos 207
+ypos 780
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID fa2a65f2-61ab-11ec-8d45-b06ebf3868fa
+}
+Expression {
+expr0 (x+0.5)/width
+expr1 (y+0.5)/height
+name Expression2
+selected true
+xpos 207
+ypos 854
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID ec44f768-61ab-11ec-8d45-b06ebf3868fa
+}
+set N14452a40 [stack 0]
+Dot {
+name Dot6
+selected true
+xpos 400
+ypos 851
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 35670c1e-6356-11ec-a488-b06ebf3868fa
+}
+set Nc87fe0c0 [stack 0]
+GridWarp3 {
+toolbar_visibility_src false
+source_grid_col   {
+    1 5 5 4 1 0
+    {default }
+    {
+      { {2 0 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+    }
+  }
+destination_grid_col   {
+    1 5 5 4 1 0
+    {default }
+    {
+      { {2 0 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 0} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 608} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 1216} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 1824} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 0 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 1007.5 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 2015 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 3022.5 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+      { {2 4030 2432} { {2 0 202.667}  {2 0 -202.667}  {2 335.833 0}  {2 -335.833 0} } } 
+    }
+  }
+source_grid_transform_center {2015 1216}
+destination_grid_transform_center {2015 1216}
+name GridWarp3_2
+tile_color 0x8e42ff
+selected true
+xpos 469
+ypos 961
+addUserKnob {20 Invert}
+addUserKnob {22 "invert GridWarp" l "Invert GridWarp" -STARTLINE T "from native_tools.invertGridWarp import invertGridWarp\ninvertGridWarp()"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 3192bc28-6356-11ec-a488-b06ebf3868fa
+}
+push $N14452a40
+push $Nc87fe0c0
+SplineWarp3 {
+colorOverlay {0 0 0 0}
+view {}
+curves {{{v x3f99999a}
+  {f 0}
+  {n
+   {layer Root
+    {f 2097664}
+    {t x44800000 x44428000}
+    {a pt1x 0 pt1y 0 pt2x 0 pt2y 0 pt3x 0 pt3y 0 pt4x 0 pt4y 0 ptex00 0 ptex01 0 ptex02 0 ptex03 0 ptex10 0 ptex11 0 ptex12 0 ptex13 0 ptex20 0 ptex21 0 ptex22 0 ptex23 0 ptex30 0 ptex31 0 ptex32 0 ptex33 0 ptof1x 0 ptof1y 0 ptof2x 0 ptof2y 0 ptof3x 0 ptof3y 0 ptof4x 0 ptof4y 0 pterr 0 ptrefset 0 ptmot x40800000 ptref 0}}}}}
+toolbar_preview_mode "persistent preview"
+name SplineWarp3_10
+tile_color 0x8e42ff
+selected true
+xpos 354
+ypos 961
+addUserKnob {20 MELS}
+addUserKnob {22 "Classify Pins in source and destination folders" l "Classify Pins" -STARTLINE T "from native_tools.classifyPins import classifyPins\nclassifyPins()"}
+addUserKnob {22 "Create controller/destination shapes for selected curves" l "Splinewarp Controller" T "from native_tools.splinewarp_controller import splinewarp_controller\nsplinewarp_controller()" +STARTLINE}
+addUserKnob {26 "controller text" l "" +STARTLINE T "CONTROLLER STEPS: \nstep 1- Animate sources curves\nstep 2- Press 'Splinewarp Controller' button \n         (Destination and Controller shapes will be created)\n\nstep 3- Animate Controller shape \n\nDestination shape is the addition of source shape and controller shape\n(Allow you to don't have to come back on every source shape's keyframes)"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID ad833f7c-633a-11ec-91aa-b06ebf3868fa
+}
+Merge2 {
+inputs 2
+operation from
+name Merge5
+selected true
+xpos 314
+ypos 1069
+addUserKnob {20 Blending_Mode}
+addUserKnob {22 push_over l over T "nuke.thisNode()\['operation'].setValue('over')" +STARTLINE}
+addUserKnob {22 push_under l under -STARTLINE T "nuke.thisNode()\['operation'].setValue('under')"}
+addUserKnob {22 push_mask l mask T "nuke.thisNode()\['operation'].setValue('mask')" +STARTLINE}
+addUserKnob {22 push_stencil l stencil -STARTLINE T "nuke.thisNode()\['operation'].setValue('stencil')"}
+addUserKnob {22 push_min l min T "nuke.thisNode()\['operation'].setValue('min')" +STARTLINE}
+addUserKnob {22 push_max l max -STARTLINE T "nuke.thisNode()\['operation'].setValue('max')"}
+addUserKnob {22 push_from l from T "nuke.thisNode()\['operation'].setValue('from')" +STARTLINE}
+addUserKnob {22 push_plus l plus -STARTLINE T "nuke.thisNode()\['operation'].setValue('plus')"}
+addUserKnob {22 push_screen l screen T "nuke.thisNode()\['operation'].setValue('screen')" +STARTLINE}
+addUserKnob {22 push_overlay l overlay -STARTLINE T "nuke.thisNode()\['operation'].setValue('overlay')"}
+addUserKnob {22 push_atop l atop T "nuke.thisNode()\['operation'].setValue('atop')" +STARTLINE}
+addUserKnob {22 push_geometric l geometric -STARTLINE T "nuke.thisNode()\['operation'].setValue('geometric')"}
+addUserKnob {22 push_divide l divide T "nuke.thisNode()\['operation'].setValue('divide')" +STARTLINE}
+addUserKnob {22 push_multiply l multiply -STARTLINE T "nuke.thisNode()\['operation'].setValue('multiply')"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 6cdddbbe-61ad-11ec-8d45-b06ebf3868fa
+}
+set N13ecfdf0 [stack 0]
+Dot {
+name Dot10
+selected true
+xpos 342
+ypos 1105
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 78df91b2-6353-11ec-9022-b06ebf3868fa
+}
+set N1525f530 [stack 0]
+Dot {
+name Dot13
+selected true
+xpos 195
+ypos 1105
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 83101a8c-6356-11ec-a488-b06ebf3868fa
+}
+Dot {
+name Dot7
+selected true
+xpos 195
+ypos 1259
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 477cb898-6335-11ec-8ab6-b06ebf3868fa
+}
+push $N1525f530
+TimeOffset {
+time_offset -1
+time ""
+name TimeOffset2
+label "\[value time_offset]"
+selected true
+xpos 253
+ypos 1226
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 411c6a50-6337-11ec-91aa-b06ebf3868fa
+}
+Merge2 {
+inputs 2
+operation from
+name Merge9
+selected true
+xpos 253
+ypos 1262
+addUserKnob {20 Blending_Mode}
+addUserKnob {22 push_over l over T "nuke.thisNode()\['operation'].setValue('over')" +STARTLINE}
+addUserKnob {22 push_under l under -STARTLINE T "nuke.thisNode()\['operation'].setValue('under')"}
+addUserKnob {22 push_mask l mask T "nuke.thisNode()\['operation'].setValue('mask')" +STARTLINE}
+addUserKnob {22 push_stencil l stencil -STARTLINE T "nuke.thisNode()\['operation'].setValue('stencil')"}
+addUserKnob {22 push_min l min T "nuke.thisNode()\['operation'].setValue('min')" +STARTLINE}
+addUserKnob {22 push_max l max -STARTLINE T "nuke.thisNode()\['operation'].setValue('max')"}
+addUserKnob {22 push_from l from T "nuke.thisNode()\['operation'].setValue('from')" +STARTLINE}
+addUserKnob {22 push_plus l plus -STARTLINE T "nuke.thisNode()\['operation'].setValue('plus')"}
+addUserKnob {22 push_screen l screen T "nuke.thisNode()\['operation'].setValue('screen')" +STARTLINE}
+addUserKnob {22 push_overlay l overlay -STARTLINE T "nuke.thisNode()\['operation'].setValue('overlay')"}
+addUserKnob {22 push_atop l atop T "nuke.thisNode()\['operation'].setValue('atop')" +STARTLINE}
+addUserKnob {22 push_geometric l geometric -STARTLINE T "nuke.thisNode()\['operation'].setValue('geometric')"}
+addUserKnob {22 push_divide l divide T "nuke.thisNode()\['operation'].setValue('divide')" +STARTLINE}
+addUserKnob {22 push_multiply l multiply -STARTLINE T "nuke.thisNode()\['operation'].setValue('multiply')"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 411bfc8c-6337-11ec-91aa-b06ebf3868fa
+}
+push $N1525f530
+Dot {
+name Dot8
+selected true
+xpos 490
+ypos 1105
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 4a25c29c-6335-11ec-8ab6-b06ebf3868fa
+}
+Dot {
+name Dot14
+selected true
+xpos 490
+ypos 1267
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 86721cfc-6356-11ec-a488-b06ebf3868fa
+}
+push $N1525f530
+TimeOffset {
+time_offset 1
+time ""
+name TimeOffset1
+label "\[value time_offset]"
+selected true
+xpos 380
+ypos 1234
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID ffb88d3c-6331-11ec-8ab6-b06ebf3868fa
+}
+Merge2 {
+inputs 2
+operation from
+name Merge8
+selected true
+xpos 380
+ypos 1270
+addUserKnob {20 Blending_Mode}
+addUserKnob {22 push_over l over T "nuke.thisNode()\['operation'].setValue('over')" +STARTLINE}
+addUserKnob {22 push_under l under -STARTLINE T "nuke.thisNode()\['operation'].setValue('under')"}
+addUserKnob {22 push_mask l mask T "nuke.thisNode()\['operation'].setValue('mask')" +STARTLINE}
+addUserKnob {22 push_stencil l stencil -STARTLINE T "nuke.thisNode()\['operation'].setValue('stencil')"}
+addUserKnob {22 push_min l min T "nuke.thisNode()\['operation'].setValue('min')" +STARTLINE}
+addUserKnob {22 push_max l max -STARTLINE T "nuke.thisNode()\['operation'].setValue('max')"}
+addUserKnob {22 push_from l from T "nuke.thisNode()\['operation'].setValue('from')" +STARTLINE}
+addUserKnob {22 push_plus l plus -STARTLINE T "nuke.thisNode()\['operation'].setValue('plus')"}
+addUserKnob {22 push_screen l screen T "nuke.thisNode()\['operation'].setValue('screen')" +STARTLINE}
+addUserKnob {22 push_overlay l overlay -STARTLINE T "nuke.thisNode()\['operation'].setValue('overlay')"}
+addUserKnob {22 push_atop l atop T "nuke.thisNode()\['operation'].setValue('atop')" +STARTLINE}
+addUserKnob {22 push_geometric l geometric -STARTLINE T "nuke.thisNode()\['operation'].setValue('geometric')"}
+addUserKnob {22 push_divide l divide T "nuke.thisNode()\['operation'].setValue('divide')" +STARTLINE}
+addUserKnob {22 push_multiply l multiply -STARTLINE T "nuke.thisNode()\['operation'].setValue('multiply')"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 2e5ff42c-6332-11ec-8ab6-b06ebf3868fa
+}
+Merge2 {
+inputs 2
+operation max
+name Merge10
+selected true
+xpos 325
+ypos 1322
+addUserKnob {20 Blending_Mode}
+addUserKnob {22 push_over l over T "nuke.thisNode()\['operation'].setValue('over')" +STARTLINE}
+addUserKnob {22 push_under l under -STARTLINE T "nuke.thisNode()\['operation'].setValue('under')"}
+addUserKnob {22 push_mask l mask T "nuke.thisNode()\['operation'].setValue('mask')" +STARTLINE}
+addUserKnob {22 push_stencil l stencil -STARTLINE T "nuke.thisNode()\['operation'].setValue('stencil')"}
+addUserKnob {22 push_min l min T "nuke.thisNode()\['operation'].setValue('min')" +STARTLINE}
+addUserKnob {22 push_max l max -STARTLINE T "nuke.thisNode()\['operation'].setValue('max')"}
+addUserKnob {22 push_from l from T "nuke.thisNode()\['operation'].setValue('from')" +STARTLINE}
+addUserKnob {22 push_plus l plus -STARTLINE T "nuke.thisNode()\['operation'].setValue('plus')"}
+addUserKnob {22 push_screen l screen T "nuke.thisNode()\['operation'].setValue('screen')" +STARTLINE}
+addUserKnob {22 push_overlay l overlay -STARTLINE T "nuke.thisNode()\['operation'].setValue('overlay')"}
+addUserKnob {22 push_atop l atop T "nuke.thisNode()\['operation'].setValue('atop')" +STARTLINE}
+addUserKnob {22 push_geometric l geometric -STARTLINE T "nuke.thisNode()\['operation'].setValue('geometric')"}
+addUserKnob {22 push_divide l divide T "nuke.thisNode()\['operation'].setValue('divide')" +STARTLINE}
+addUserKnob {22 push_multiply l multiply -STARTLINE T "nuke.thisNode()\['operation'].setValue('multiply')"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 58f35c42-6332-11ec-8ab6-b06ebf3868fa
+}
+push $N13ecfdf0
+push $N14452a40
+Dot {
+name Dot9
+selected true
+xpos 22
+ypos 851
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 7f8a54fe-6356-11ec-a488-b06ebf3868fa
+}
+Merge2 {
+inputs 2
+operation plus
+name Merge7
+selected true
+xpos -6
+ypos 1069
+addUserKnob {20 Blending_Mode}
+addUserKnob {22 push_over l over T "nuke.thisNode()\['operation'].setValue('over')" +STARTLINE}
+addUserKnob {22 push_under l under -STARTLINE T "nuke.thisNode()\['operation'].setValue('under')"}
+addUserKnob {22 push_mask l mask T "nuke.thisNode()\['operation'].setValue('mask')" +STARTLINE}
+addUserKnob {22 push_stencil l stencil -STARTLINE T "nuke.thisNode()\['operation'].setValue('stencil')"}
+addUserKnob {22 push_min l min T "nuke.thisNode()\['operation'].setValue('min')" +STARTLINE}
+addUserKnob {22 push_max l max -STARTLINE T "nuke.thisNode()\['operation'].setValue('max')"}
+addUserKnob {22 push_from l from T "nuke.thisNode()\['operation'].setValue('from')" +STARTLINE}
+addUserKnob {22 push_plus l plus -STARTLINE T "nuke.thisNode()\['operation'].setValue('plus')"}
+addUserKnob {22 push_screen l screen T "nuke.thisNode()\['operation'].setValue('screen')" +STARTLINE}
+addUserKnob {22 push_overlay l overlay -STARTLINE T "nuke.thisNode()\['operation'].setValue('overlay')"}
+addUserKnob {22 push_atop l atop T "nuke.thisNode()\['operation'].setValue('atop')" +STARTLINE}
+addUserKnob {22 push_geometric l geometric -STARTLINE T "nuke.thisNode()\['operation'].setValue('geometric')"}
+addUserKnob {22 push_divide l divide T "nuke.thisNode()\['operation'].setValue('divide')" +STARTLINE}
+addUserKnob {22 push_multiply l multiply -STARTLINE T "nuke.thisNode()\['operation'].setValue('multiply')"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID eaf26bb6-62a5-11ec-b248-b06ebf3868fa
+}
+push $N64af5560
+Dot {
+name Dot11
+selected true
+xpos -171
+ypos 750
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 02200658-6356-11ec-a488-b06ebf3868fa
+}
+Dot {
+name Dot12
+selected true
+xpos -171
+ypos 1592
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 0379d844-6356-11ec-a488-b06ebf3868fa
+}
+STMap {
+inputs 2
+channels rgba
+uv rgb
+name STMap2
+selected true
+xpos -6
+ypos 1595
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID fea56a96-62a5-11ec-b248-b06ebf3868fa
+}
+BlinkScript {
+inputs 2
+recompileCount 50
+ProgramGroup 1
+KernelDescription "2 \"WarpMotionBlurKernel\" iterate pixelWise 9f581d2c260f64b3d9038154c56979a4aa4fc5bfbc303b09f60b4351b6dd9ca5 3 \"src\" Read Random \"motion\" Read Random \"dst\" Write Point 2 \"iterations\" Int 1 AAAAAA== \"strenght\" Float 1 AAAAAA== 2 \"iterations\" 1 1 \"strenght\" 1 1 2 \"output\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA== \"motionB\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA=="
+kernelSource "\nkernel WarpMotionBlurKernel : ImageComputationKernel<ePixelWise>\n\{\n  Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n  Image<eRead, eAccessRandom, eEdgeClamped> motion;\n  Image<eWrite> dst; // the output image\n\n  param:\n    // This parameter is made available to the user.\n  int iterations;\n  float strenght;\n\n  local:\n    // This local variable is not exposed to the user.\n  float4 output;\n  float4 motionB;\n\n  // In define(), parameters can be given labels and default values.\n  void define() \{\n    \n  \}\n\n  // The init() function is run before any calls to process().\n  // Local variables can be initialized here.\n  void init() \{\n\t\n    \n  \}\n\n  void process(int2 pos) \{\n\toutput = src(pos.x, pos.y);\n\tmotionB = motion(pos.x, pos.y);\n\n\tfor(int i = -1* iterations; i <= iterations; i++)\n\{\noutput += bilinear(src, pos.x + i*motion(pos.x, pos.y).x*strenght*100/iterations, pos.y + i*motion(pos.x, pos.y).y*strenght*100/iterations);\n\n\n\n\}\n\tif(iterations != 0)\{\n\toutput = output / (2*(iterations+1));\n\t\}\n\telse\n\t\{\n\toutput = src(pos.x, pos.y);\n\t\}\t  \n    \n    // Write the result to the output image\n    dst() = output;\n  \}\n\};\n"
+rebuild ""
+WarpMotionBlurKernel_iterations {{iterations}}
+WarpMotionBlurKernel_strenght {{shutter}}
+rebuild_finalise ""
+name BlinkScript6
+selected true
+xpos 325
+ypos 1589
+addUserKnob {20 User}
+addUserKnob {3 iterations}
+iterations 10
+addUserKnob {7 shutter R 0 10}
+shutter 10
+}
+Dot {
+name Dot3
+label Out
+note_font_size 31
+selected true
+xpos 353
+ypos 1768
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 19dc374e-6356-11ec-a488-b06ebf3868fa
+}

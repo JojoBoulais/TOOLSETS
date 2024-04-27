@@ -1,0 +1,849 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push 0
+push $cut_paste_input
+Group {
+inputs 2
+name GradientBlur
+knobChanged "\n\nimport nuke\n\n\ndef getDefaultNode():\n    nodes = \{\}\n\n    nodes\['input'] = nuke.toNode('input')\n    nodes\['gradient'] = nuke.toNode('Gradient')\n    nodes\['mask'] = nuke.toNode('Mask')\n    nodes\['Blur_'] = nuke.toNode('Blur_')\n    nodes\['output'] = nuke.toNode('Output1')\n    nodes\['blend'] = nuke.toNode('blend')\n\n    return nodes\n\n\ndef createExpressionNodes(i, nodes, stepsV):\n    expression = nuke.createNode('Expression', inpanel=False)\n    expression.setInput(0, nodes\['gradient'])\n    expression\['expr3'].setValue('a>\{0\}?1:0'.format(float(1/float(stepsV)) * i))\n    expression\['ypos'].setValue(nodes\['gradient']\['ypos'].value() + 100)\n    expression\['xpos'].setValue(nodes\['gradient']\['xpos'].value() + 100*i)\n\n\ndef createStepBlurNodes(i):\n    blur = nuke.createNode('Blur', inpanel=False)\n    blur.setName('stepblur\{0\}'.format(i))\n    expression = nuke.toNode('Expression\{0\}'.format(i))\n    blur.setInput(0, expression)\n    blur\['ypos'].setValue(expression\['ypos'].value()+100)\n    blur\['xpos'].setValue(expression\['xpos'].value())\n    blur\['channels'].setExpression('Blur_.channels')\n    blur\['filter'].setExpression('Blur_.filter')\n    blur\['quality'].setExpression('Blur_.quality')\n    blur\['crop'].setExpression('Blur_.crop')\n    blur\['size'].setExpression('parent.stepsBlur')\n\n\ndef createBlurNodes(i, nodes, stepsV):\n    blur = nuke.createNode('Blur', inpanel=False)\n    blur.setName('blur\{0\}'.format(i))\n    blur.setInput(0, nodes\['input'])\n    blur\['ypos'].setValue(nodes\['input']\['ypos'].value() + 100 * i)\n    blur\['xpos'].setValue(nodes\['input']\['xpos'].value() + 100 * i)\n    blur\['channels'].setExpression('Blur_.channels')\n    blur\['filter'].setExpression('Blur_.filter')\n    blur\['quality'].setExpression('Blur_.quality')\n    blur\['crop'].setExpression('Blur_.crop')\n\n    blur\['size'].setExpression('\{0\}*(parent.size/parent.steps)*(\{0\}/\{1\})'.format(float(i), stepsV))\n\n\ndef createKeyMix(i, nodes):\n    keymix = nuke.createNode('Keymix', inpanel=False)\n    keymix.setName('keymix\{0\}'.format(i))\n    if i == 1:\n        keymix.setInput(0, nodes\['input'])\n    else:\n        keymix.setInput(0, nuke.toNode('keymix\{0\}'.format(i-1)))\n    keymix.setInput(1, nuke.toNode('blur\{0\}'.format(i)))\n    keymix.setInput(2, nuke.toNode('stepblur\{0\}'.format(i)))\n    keymix\['xpos'].setValue(nuke.toNode('blur\{0\}'.format(i))\['xpos'].value()-50)\n    keymix\['ypos'].setValue(nuke.toNode('blur\{0\}'.format(i))\['ypos'].value() + 100)\n\n\ndef keepDefaultNodes(nodes):\n\n    allNodes = nuke.allNodes()\n    for node in nodes.values():\n        allNodes.remove(node)\n\n    for node in allNodes:\n        nuke.delete(node)\n\n    del(allNodes)\n\n\ndef main():\n    n = nuke.thisNode()\n    k = nuke.thisKnob()\n    steps = n\['steps']\n    stepsV = int(steps.value())\n    if k == steps:\n        if k.value() < 1:\n            k.setValue(1)\n            stepsV = 1\n\n        with n:\n            nodes = getDefaultNode()\n            keepDefaultNodes(nodes)\n            i = 1\n            for i in range(1, stepsV+2, 1):\n                createExpressionNodes(i, nodes, stepsV)\n                createStepBlurNodes(i)\n                createBlurNodes(i, nodes, stepsV)\n                createKeyMix(i, nodes)\n            nodes\['blend'].setInput(1, nuke.toNode('keymix\{0\}'.format(i)))\n\nmain()\n"
+tile_color 0xcc804eff
+label "\[value size]"
+selected true
+xpos 25938
+ypos 1699
+addUserKnob {20 User}
+addUserKnob {3 steps l Steps}
+steps 15
+addUserKnob {7 stepsBlur l "Steps Blur" R 0 100}
+stepsBlur 50
+addUserKnob {26 ""}
+addUserKnob {41 channels T Blur_.channels}
+addUserKnob {7 size R 0 1000}
+addUserKnob {41 filter T Blur_.filter}
+addUserKnob {41 quality l "" -STARTLINE T Blur_.quality}
+addUserKnob {41 crop l "crop to format" -STARTLINE T Blur_.crop}
+addUserKnob {7 mix}
+mix 1
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 6c3ac260-2f96-11ec-bc62-b06ebf3868fa
+}
+Input {
+inputs 0
+name input
+xpos 297
+ypos 96
+}
+set N1bd2ec80 [stack 0]
+Blur {
+size {{parent.size}}
+quality 7
+name Blur_
+label "\[value size]"
+xpos 393
+ypos 83
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 35382a04-2dc6-11ec-aa46-b06ebf3868fa
+}
+Input {
+inputs 0
+name Mask
+xpos 2974
+ypos 4339
+number 2
+}
+Input {
+inputs 0
+name Gradient
+xpos 752
+ypos -119
+number 1
+}
+set N1bd46a80 [stack 0]
+Expression {
+expr3 a>1.06666666667?1:0
+name Expression16
+xpos 2352
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fff14c-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur16
+label "\[value size]"
+xpos 2352
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 760052c2-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{16.0*(parent.size/parent.steps)*(16.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur16
+label "\[value size]"
+xpos 1897
+ypos 1696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 7600ae5c-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>1.0?1:0
+name Expression15
+xpos 2252
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fea350-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur15
+label "\[value size]"
+xpos 2252
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fefec2-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{15.0*(parent.size/parent.steps)*(15.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur15
+label "\[value size]"
+xpos 1797
+ypos 1596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ff5d22-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.933333333333?1:0
+name Expression14
+xpos 2152
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fceb5a-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur14
+label "\[value size]"
+xpos 2152
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fd3e48-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{14.0*(parent.size/parent.steps)*(14.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur14
+label "\[value size]"
+xpos 1697
+ypos 1496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fd953c-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.866666666667?1:0
+name Expression13
+xpos 2052
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fba16e-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur13
+label "\[value size]"
+xpos 2052
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fbf66e-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{13.0*(parent.size/parent.steps)*(13.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur13
+label "\[value size]"
+xpos 1597
+ypos 1396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fc5b04-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.8?1:0
+name Expression12
+xpos 1952
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fa5cb4-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur12
+label "\[value size]"
+xpos 1952
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fab40c-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{12.0*(parent.size/parent.steps)*(12.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur12
+label "\[value size]"
+xpos 1497
+ypos 1296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fb0c18-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.733333333333?1:0
+name Expression11
+xpos 1852
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f8a6f8-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur11
+label "\[value size]"
+xpos 1852
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f900bc-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{11.0*(parent.size/parent.steps)*(11.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur11
+label "\[value size]"
+xpos 1397
+ypos 1196
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f9c330-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.666666666667?1:0
+name Expression10
+xpos 1752
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f75e4c-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur10
+label "\[value size]"
+xpos 1752
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f7b5ea-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{10.0*(parent.size/parent.steps)*(10.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur10
+label "\[value size]"
+xpos 1297
+ypos 1096
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f80d38-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.6?1:0
+name Expression9
+xpos 1652
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f56f60-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur9
+label "\[value size]"
+xpos 1652
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f5c474-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{9.0*(parent.size/parent.steps)*(9.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur9
+label "\[value size]"
+xpos 1197
+ypos 996
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f61eb0-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.533333333333?1:0
+name Expression8
+xpos 1552
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f3b058-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur8
+label "\[value size]"
+xpos 1552
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f406fc-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{8.0*(parent.size/parent.steps)*(8.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur8
+label "\[value size]"
+xpos 1097
+ypos 896
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f4cefc-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.466666666667?1:0
+name Expression7
+xpos 1452
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f26cc0-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur7
+label "\[value size]"
+xpos 1452
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f2c0a8-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{7.0*(parent.size/parent.steps)*(7.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur7
+label "\[value size]"
+xpos 997
+ypos 796
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f31968-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.4?1:0
+name Expression6
+xpos 1352
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f11b04-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur6
+label "\[value size]"
+xpos 1352
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f17388-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{6.0*(parent.size/parent.steps)*(6.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur6
+label "\[value size]"
+xpos 897
+ypos 696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f1d210-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.333333333333?1:0
+name Expression5
+xpos 1252
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75efb106-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur5
+label "\[value size]"
+xpos 1252
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f016dc-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{5.0*(parent.size/parent.steps)*(5.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur5
+label "\[value size]"
+xpos 797
+ypos 596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f075e6-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.266666666667?1:0
+name Expression4
+xpos 1152
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75eddc82-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur4
+label "\[value size]"
+xpos 1152
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ee31a0-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{4.0*(parent.size/parent.steps)*(4.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur4
+label "\[value size]"
+xpos 697
+ypos 496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ee8d26-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.2?1:0
+name Expression3
+xpos 1052
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ec8ada-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur3
+label "\[value size]"
+xpos 1052
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ece3a4-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{3.0*(parent.size/parent.steps)*(3.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur3
+label "\[value size]"
+xpos 597
+ypos 396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ed3fb6-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.133333333333?1:0
+name Expression2
+xpos 952
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75eaee8c-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur2
+label "\[value size]"
+xpos 952
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75eb5e3a-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{2.0*(parent.size/parent.steps)*(2.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur2
+label "\[value size]"
+xpos 497
+ypos 296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ebd70c-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd46a80
+Expression {
+expr3 a>0.0666666666667?1:0
+name Expression1
+xpos 852
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75e78ff8-2df9-11ec-aa46-b06ebf3868fa
+}
+Blur {
+channels {{{Blur_.channels}}}
+size {{parent.stepsBlur}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name stepblur1
+label "\[value size]"
+xpos 852
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75e8d9da-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blur {
+channels {{{Blur_.channels}}}
+size {{1.0*(parent.size/parent.steps)*(1.0/15)}}
+filter {{Blur_.filter}}
+quality {{Blur_.quality}}
+crop {{Blur_.crop}}
+name blur1
+label "\[value size]"
+xpos 397
+ypos 196
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75e97390-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Keymix {
+inputs 3
+name keymix1
+xpos 347
+ypos 296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75e9ea0a-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix2
+xpos 447
+ypos 396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ec4e1c-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix3
+xpos 547
+ypos 496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ed9e3e-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix4
+xpos 647
+ypos 596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75eeec76-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix5
+xpos 747
+ypos 696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f0e076-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix6
+xpos 847
+ypos 796
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f22eb8-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix7
+xpos 947
+ypos 896
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f37764-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix8
+xpos 1047
+ypos 996
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f53018-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix9
+xpos 1147
+ypos 1096
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f71f40-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix10
+xpos 1247
+ypos 1196
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75f85fb8-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix11
+xpos 1347
+ypos 1296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fa13ee-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix12
+xpos 1447
+ypos 1396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fb5be6-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix13
+xpos 1547
+ypos 1496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fca8a2-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix14
+xpos 1647
+ypos 1596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75fde460-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix15
+xpos 1747
+ypos 1696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 75ffad18-2df9-11ec-aa46-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix16
+xpos 1847
+ypos 1796
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 7601024e-2df9-11ec-aa46-b06ebf3868fa
+}
+push $N1bd2ec80
+Blend {
+inputs 2+1
+weight0 {{1-parent.mix}}
+weight1 {{parent.mix}}
+name blend
+xpos 2714
+ypos 4333
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID eeb26622-2df6-11ec-aa46-b06ebf3868fa
+}
+Output {
+name Output1
+xpos 2714
+ypos 4412
+}
+end_group

@@ -1,0 +1,241 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push $cut_paste_input
+Group {
+name PxF_Line_Normal
+tile_color 0x470068ff
+selected true
+xpos 35778
+ypos -122
+addUserKnob {20 vgas l Vgas +INVISIBLE}
+addUserKnob {1 nativeUID +DISABLED +INVISIBLE}
+nativeUID 1f6a1efa-434f-11ec-918e-b06ebf3868fa
+addUserKnob {20 PxF_LineNormalTab l PxF_LineNormal}
+addUserKnob {7 opacity}
+opacity 0.415
+addUserKnob {7 normalLenght l "Normal Lenght" R 0 5}
+normalLenght 0.8
+addUserKnob {7 slideOnLine l "Slide on Line"}
+slideOnLine 0.36
+addUserKnob {6 flipNormal l "flip normal" +STARTLINE}
+addUserKnob {26 "" +STARTLINE}
+addUserKnob {41 toolbox l "" -STARTLINE T PxF_Line.toolbox}
+addUserKnob {41 curves l "" -STARTLINE T PxF_Line.curves}
+}
+Input {
+inputs 0
+name RGB
+xpos -377
+ypos 139
+}
+RotoPaint {
+cliptype bbox
+curves {{{v x3f99999a}
+  {f 0}
+  {n
+   {layer Root
+    {f 2097664}
+    {t x44838000 x44140000}
+    {a}
+    {cubiccurve Brush1 512 catmullrom
+     {cc
+      {f 2080}
+      {px
+       {x44854000 x44896000}
+       {{{xc388172f 0 1 x429f13db 1}
+      {x45138994 x429f13db 1 0 1}}
+     {{xc3e369ad 0 1 x41dc8ded 1}
+      {x43837b0c x41dc8ded 1 0 1}}
+     {{x3f00c5fc -}}}
+       {{{xc4297c18 0 1 x42b7cd21 1}
+      {x4504ac84 x42b7cd21 1 0 1}}
+     {{xc2e6ea6e 0 1 x423dac9e 1}
+      {x44b82b5b x423dac9e 1 0 1}}
+     {{x3f000000 -}}}}}
+     {t x448ad6b8 x43f0c3b6}
+     {a h x3e800000 dt 0 spx x44838000 spy x44140000 sb 1 ltn x4482a000 ltm x4482a000 tt x41600000 opc
+   {=parent.opacity 1}}}}}}}
+toolbox {selectAll {
+  { selectAll str 1 ssx 1 ssy 1 sf 1 }
+  { selectCurves str 1 ssx 1 ssy 1 sf 1 tt 1 }
+  { createBezier str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createBezierCusped str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createBSpline str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createEllipse str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createRectangle str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createRectangleCusped str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { addPoints str 1 ssx 1 ssy 1 sf 1 }
+  { brush str 1 ssx 1 ssy 1 sf 1 sb 1 ltn 1045 ltm 1045 tt 14 }
+  { eraser src 2 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { clone src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { reveal src 3 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { dodge src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { burn src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { blur src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { sharpen src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { smear src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+} }
+toolbar_show_paint_selection true
+toolbar_brush_hardness 0.200000003
+toolbar_source_transform_scale {1 1}
+toolbar_source_transform_center {320 240}
+colorOverlay {1 1 1 1}
+opacity {{parent.opacity 1}}
+lifetime_type "all frames"
+lifetime_start 1045
+lifetime_end 1045
+motionblur_shutter_offset_type centred
+brush_spacing 0.05000000075
+brush_hardness 0.25
+dynamic_transparency false
+buildup false
+source_translate_round false
+source_black_outside true
+name PxF_Line
+xpos -377
+ypos 180
+addUserKnob {20 User}
+addUserKnob {1 _klass l INVISIBLE +INVISIBLE}
+_klass PxF_Line
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 16ae20ae-40c0-11ec-b318-b06ebf3868fa
+}
+RotoPaint {
+cliptype none
+curves {{{v x3f99999a}
+  {f 0}
+  {n
+   {layer Root
+    {f 2097664}
+    {t x44838000 x44140000}
+    {a}
+    {cubiccurve Brush1 512 catmullrom
+     {cc
+      {f 2080}
+      {px
+       {x44854000 x44896000}
+       {{=Vectors.normalp1
+      {{xc388172f 0 1 x41a8a642 1}
+       {x43d3bfba x41a8a642 1 0 1}}}
+     {=Vectors.normalp1
+      {{xc3e369ad 0 1 x4238313c 1}
+       {x4485185b x4238313c 1 0 1}}}
+     {{x3f00c5fc -}}}
+       {{=Vectors.normapP2.x
+      {{xc4297c18 0 1 x428fbf2b 1}
+       {x44d3bc3d x428fbf2b 1 0 1}}}
+     {=Vectors.normapP2.y
+      {{xc2e6ea6e 0 1 x4162d17e 1}
+       {x43b02d6e x4162d17e 1 0 1}}}
+     {{x3f000000 -}}}}}
+     {t x448ad6b8 x43f0c3b6}
+     {a h x3e800000 dt 0 spx x44838000 spy x44140000 sb 1 ltn x4482a000 ltm x4482a000 tt x41600000 a
+   {=parent.opacity
+    {{x44896000 1 -}}}     b
+   {=1
+    {{x44896000 1 -}}}     g
+   {=0
+    {{x44896000 1 -}}}     r
+   {=1
+    {{0 1 -}
+     {x44896000}}}     opc
+   {=parent.opacity 1}}}}}}}
+toolbox {brush {
+  { selectAll str 1 ssx 1 ssy 1 sf 1 }
+  { selectCurves str 1 ssx 1 ssy 1 sf 1 tt 1 }
+  { createBezier str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createBezierCusped str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createBSpline str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createEllipse str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createRectangle str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { createRectangleCusped str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { brush str 1 ssx 1 ssy 1 sf 1 sb 1 ltn 1045 ltm 1045 tt 17 }
+  { eraser src 2 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { clone src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { reveal src 3 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { dodge src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { burn src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { blur src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { sharpen src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+  { smear src 1 str 1 ssx 1 ssy 1 sf 1 sb 1 }
+} }
+toolbar_show_paint_selection true
+toolbar_brush_hardness 0.200000003
+toolbar_lifetime_type single
+toolbar_lifetime_start 1045
+toolbar_lifetime_end 1045
+toolbar_source_transform_scale {1 1}
+toolbar_source_transform_center {2023 1011.5}
+color {{1 1 x1099 1} {0 x1099 1} {1 x1099 1} {parent.opacity x1099 1}}
+colorOverlay {1 1 1 1}
+opacity {{parent.opacity}}
+lifetime_type "all frames"
+lifetime_start 1045
+lifetime_end 1045
+motionblur_on true
+brush_spacing 0.05000000075
+brush_hardness 0.25
+dynamic_transparency false
+buildup false
+source_translate_round false
+source_black_outside true
+name PxF_Line1
+xpos -377
+ypos 251
+addUserKnob {20 User}
+addUserKnob {1 _klass l INVISIBLE +INVISIBLE}
+_klass PxF_Line
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 16ae20ae-40c0-11ec-b318-b06ebf3868fa
+}
+Output {
+name Output1
+xpos -377
+ypos 467
+}
+Viewer {
+frame_range 1-1168
+viewerProcess "sRGB (default)"
+name Viewer1
+xpos -260
+ypos -9
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9663c06a-434f-11ec-918e-b06ebf3868fa
+}
+NoOp {
+inputs 0
+name Vectors
+tile_color 0xf42b00
+xpos -577
+ypos 274
+addUserKnob {20 vgas l Vgas +INVISIBLE}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 8eb1b764-40c0-11ec-b318-b06ebf3868fa
+addUserKnob {20 Vectors}
+addUserKnob {7 dss l dsds}
+dss {{parent.flipNormal==0?1:-1}}
+addUserKnob {26 v1 l "Vector 1"}
+addUserKnob {12 p1 l P1 +INVISIBLE}
+p1 {{PxF_Line.curves.Brush1.curve.0.main.x} {PxF_Line.curves.Brush1.curve.0.main.y}}
+addUserKnob {12 p2 l P2 +INVISIBLE}
+p2 {{PxF_Line.curves.Brush1.curve.1.main.x x1066 1785} {PxF_Line.curves.Brush1.curve.1.main.y x1066 1355}}
+addUserKnob {12 vector1 l Vector1}
+vector1 {{p2.x-p1.x x1066 -87} {p2.y-p1.y x1066 191}}
+addUserKnob {7 norme1 l Norme R 0 100}
+norme1 {{"hypot(vector1.x, vector1.y)"}}
+addUserKnob {7 angle1 l Angle R -360 360}
+angle1 {{"vector1.x < 0?(atan(vector1.y/vector1.x)+pi)*180/pi : vector1.x < 0 && vector1.y < 0? (atan(vector1.y/vector1.x)+pi)*180/pi : vector1.y < 0? (atan(vector1.y/vector1.x)+2*pi)*180/pi:atan(vector1.y/vector1.x)*180/pi"}}
+addUserKnob {12 composantes1 l Composantes}
+composantes1 {{p2.x-p1.x} {p2.y-p1.y}}
+addUserKnob {26 normalT l Normal}
+addUserKnob {12 normalp1 l P1}
+normalp1 {{"(p2.x-p1.x)*parent.slideOnLine + p1.x" x1066 -270 x1099 6086.707581} {"(p2.y-p1.y)*parent.slideOnLine + p1.y" x1066 -144}}
+addUserKnob {7 normalLenght l lenght R 0 5}
+normalLenght {{parent.normalLenght}}
+addUserKnob {12 normapP2 l P2}
+normapP2 {{(((parent.flipNormal==0?1:-1)*composantes1.y)*normalLenght)+normalp1.x x1066 588} {((parent.flipNormal==1?1:-1)*composantes1.x*normalLenght)+normalp1 x1066 128}}
+}
+end_group

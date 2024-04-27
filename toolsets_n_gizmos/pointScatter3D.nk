@@ -1,0 +1,486 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push 0
+push $cut_paste_input
+Group {
+inputs 2
+name PointScatter3D3
+knobChanged "\n\nimport nuke\n\n\ndef getDefaultNode():\n    nodes = \{\}\n\n    nodes\['Sprite'] = nuke.toNode(\"SPRITE\")\n    nodes\['AxisControl'] = nuke.toNode(\"AxisControl\")\n    nodes\['output'] = nuke.toNode(\"Output1\")\n    nodes\['finalMerge'] = nuke.toNode('MergeGeoFinal')\n    nodes\['TransformGeo'] = nuke.toNode('TransformGeo')\n    nodes\['RemoveAll'] = nuke.toNode(\"RemoveAll\")\n    nodes\['Premult'] = nuke.toNode('Premult')\n    return nodes\n\n\ndef activateFalloff(i):\n\n    dissolve = nuke.toNode('Dissolve\{0\}'.format(i))\n\n    dissolve\['which'].setExpression(\"(clamp(random(\{0\}*parent.seed)*parent.maxOpacityOffset) + (1/((abs(parent.maxTranslateOffsetX)+abs(parent.maxTranslateOffsetY)+abs(parent.maxTranslateOffsetZ))/\"\n                                    \"(abs(Card\{0\}.translate.x)+abs(Card\{0\}.translate.y) + abs(Card\{0\}.translate.z)))*parent.fallOffIntensity) - parent.startOff)\".format(i))\n\n\ndef deactivateFalloff(i):\n    dissolve = nuke.toNode('Dissolve\{0\}'.format(i))\n    dissolve\['which'].setExpression(\"random(\{0\}*parent.seed)*parent.maxOpacityOffset\".format(i))\n\n\ndef invertFalloff(i):\n    dissolve = nuke.toNode('Dissolve\{0\}'.format(i))\n\n    dissolve\['which'].setExpression(\n        \"1-(clamp(random(\{0\}*parent.seed)*parent.maxOpacityOffset) + ((1/((abs(parent.maxTranslateOffsetX)+abs(parent.maxTranslateOffsetY)+abs(parent.maxTranslateOffsetZ))/\"\n                                    \"(abs(Card\{0\}.translate.x)+abs(Card\{0\}.translate.y) + abs(Card\{0\}.translate.z)))*parent.fallOffIntensity) - (1- parent.startOff)))\".format(i))\n\n\ndef newIteration(nodes,rand):\n\n    dissolve = nuke.createNode('Dissolve', inpanel=False)\n    dissolve\['which'].setExpression(\"random(\{0\}*parent.seed)*parent.maxOpacityOffset\".format(rand))\n    dissolve.setInput(0, nodes\['Premult'])\n    dissolve.setInput(1, nodes\['RemoveAll'])\n    dissolve\['xpos'].setValue(nodes\['RemoveAll']\['xpos'].value() + (100*rand))\n    dissolve\['ypos'].setValue(nodes\['RemoveAll']\['ypos'].value() + 200)\n    card = nuke.createNode(\"Card2\", inpanel=False)\n    card.setInput(0, None)\n    card.setInput(0, dissolve)\n    card\['ypos'].setValue(nodes\['RemoveAll']\['ypos'].value()+300)\n    card\['xpos'].setValue(nodes\['RemoveAll']\['xpos'].value() + (200*rand))\n    #SET RANDOM TRANSLATE\n    card\['translate'].setExpression        (\"(random(\{0\}*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))\".format(rand), 0)\n    card\['translate'].setExpression        (\"(random(\{0\}*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))\".format(rand+2), 1)\n    card\['translate'].setExpression         (\"(random(\{0\}*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))\".format(rand + 3), 2)\n    #SET RANDOM ROTATE\n    card\['rotate'].setExpression        (\"random(\{0\}*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)\".format(rand+4), 0)\n    card\['rotate'].setExpression         (\"random(\{0\}*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)\".format(rand+5), 1)\n    card\['rotate'].setExpression         (\"random(\{0\}*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)\".format(rand+6), 2)\n    #SET RANDOM SCALE\n    card\['uniform_scale'].setExpression(\n        \"(random(\{0\}*parent.seed)*parent.maxScaleOffset)+parent.baseScale\".format(rand+7))\n\n\n    nodes\['finalMerge'].setInput(rand,card)\n\n    return card\n\ndef refreshMergeGeo(nodes):\n\n    xpos = nodes\['finalMerge']\['xpos'].value()\n    ypos = nodes\['finalMerge']\['ypos'].value()\n    nuke.delete(nodes\['finalMerge'])\n\n    nodes\['finalMerge'] = nuke.createNode(\"MergeGeo\", inpanel=False)\n    nodes\['finalMerge']\['xpos'].setValue(xpos)\n    nodes\['finalMerge']\['ypos'].setValue(ypos)\n    nodes\['finalMerge'].setName(\"MergeGeoFinal\")\n    nodes\['output'].setInput(0, nodes\['TransformGeo'])\n    nodes\['TransformGeo'].setInput(0, nodes\['finalMerge'])\n    nodes\['TransformGeo'].setInput(1, nodes\['AxisControl'])\n    nodes\['TransformGeo'].setInput(2, None)\n\n\ndef keepDefaultNodes(nodes):\n\n    nodesToDelete = nuke.allNodes()\n\n    for node in nodes.values():\n        nodesToDelete.remove(node)\n\n    try:\n        for node in nodesToDelete:\n            nuke.delete(node)\n    except:\n        pass\n\ndef main():\n    n = nuke.thisNode()\n    k = nuke.thisKnob()\n\n    iterations = int(n\['iterations'].value())\n    seed = n\['seed'].value()*1000\n    premult = n\['premult'].value()\n\n\n    if k == n\['activeFalloff']:\n        iters = int(n\['iterations'].value())\n        if k.value() == True:\n            with n:\n                for i in range(1,iters+1,1):\n                    if n\['invertFalloff'].value() == False:\n                        activateFalloff(i)\n                    elif n\['invertFalloff'].value() == True:\n                        invertFalloff(i)\n        elif k.value() == False:\n            for i in range(1,iters+1,1):\n                deactivateFalloff(i)\n\n    if k == n\['invertFalloff']:\n        iters = int(n\['iterations'].value())\n        if n\['activeFalloff'].value() == False:\n            pass\n        else:\n            with n:\n                if k.value() == True:\n                    for i in range(1,iters+1,1):\n                        invertFalloff(i)\n                elif k.value() == False:\n                    for i in range(1,iters+1,1):\n                        activateFalloff(i)\n\n    if k == n\['iterations']:\n        if k.value() < 0:\n            k.setValue(0)\n        with n:\n            nodes = getDefaultNode()\n            keepDefaultNodes(nodes)\n            refreshMergeGeo(nodes)\n\n            for i in range(1,iterations+1, 1):\n                card = newIteration(nodes, i)\n\n\n    elif k == n\['premult']:\n        nodes = getDefaultNode()\n        with n:\n            if k.value() == 'Premult':\n                nodes\['Premult']\['disable'].setValue(1)\n            else:\n                nodes\['Premult']\['disable'].setValue(0)\n\n\nmain()\n\n"
+tile_color 0x13ff00
+selected true
+xpos 20075
+ypos 2156
+addUserKnob {20 MainC l "Main Control"}
+addUserKnob {13 translate}
+translate {{input0.translate.x x275 -15.20000076 x314 -0.6100001335 x1039 6620} {input0.translate.y x275 13.10000038 x314 13.07999992 x1039 900} {input0.translate.z x275 6.449999809 x314 -0.6000000238 x1039 -16250}}
+addUserKnob {13 rotate}
+rotate {{input0.rotate.x} {input0.rotate.y} {input0.rotate.z}}
+addUserKnob {7 uniform_scale R 0 10}
+uniform_scale {{input0.uniform_scale}}
+addUserKnob {26 ""}
+addUserKnob {7 baseScale l "Base Card Scale" R 1 50000}
+baseScale 50000
+addUserKnob {26 ""}
+addUserKnob {7 seed l Seed R 1 100}
+seed 1
+addUserKnob {26 ""}
+addUserKnob {68 premult l "Sprite is:" M {Premult UnPremult "" "" "" "" ""}}
+addUserKnob {20 Scattering}
+addUserKnob {3 iterations l Iterations}
+iterations 10
+addUserKnob {26 ""}
+addUserKnob {7 maxTranslateOffsetX l "Max Translate Offset X" R -50000 50000}
+addUserKnob {7 maxTranslateOffsetY l "Max Translate Offset Y" R -50000 50000}
+addUserKnob {7 maxTranslateOffsetZ l "Max Translate Offset Z" R -50000 50000}
+addUserKnob {26 ""}
+addUserKnob {7 maxRotateOffsetX l "Max Rotate Offset X" R 0 360}
+addUserKnob {7 maxRotateOffsetY l "Max Rotate Offset Y" R 0 360}
+addUserKnob {7 maxRotateOffsetZ l "Max Rotate Offset Z" R 0 360}
+addUserKnob {26 ""}
+addUserKnob {7 maxScaleOffset l "Max Scale Offset" R -50000 50000}
+addUserKnob {26 ""}
+addUserKnob {7 maxOpacityOffset l "Max opacity Offset"}
+addUserKnob {20 falloff l Falloff}
+addUserKnob {6 activeFalloff l "Activate Falloff" +STARTLINE}
+addUserKnob {26 ""}
+addUserKnob {7 fallOffIntensity l Intensity R 0 10}
+addUserKnob {7 startOff t "0 - position of the axis\n\n1- the further away from axis allow by scattering"}
+addUserKnob {26 "" +STARTLINE}
+addUserKnob {6 invertFalloff l invert +STARTLINE}
+addUserKnob {20 sign l © +INVISIBLE}
+addUserKnob {26 pointScatter l "" +STARTLINE +INVISIBLE T "\f<b>Point Scatter3D</b>  V1.0"}
+addUserKnob {26 _1 l "" +STARTLINE +INVISIBLE}
+addUserKnob {26 Signature l "" +STARTLINE +INVISIBLE T "\n©JBR - jordanboulaisrichard@gmail.com\n"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID b3867a88-1b9b-11ec-81f1-b06ebf3868fa
+}
+Input {
+inputs 0
+name AxisControl
+xpos 2795
+ypos 5701
+}
+Input {
+inputs 0
+name SPRITE
+xpos 2744
+ypos 759
+number 1
+}
+set Na7385c0 [stack 0]
+Remove {
+name RemoveAll
+xpos 2809
+ypos 836
+}
+set N10212a60 [stack 0]
+push $Na7385c0
+Premult {
+name Premult
+xpos 2693
+ypos 840
+disable true
+}
+set N30cf7f10 [stack 0]
+Dissolve {
+inputs 2
+which {{random(10*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve10
+label "\[value which]"
+xpos 3809
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d7ab300-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(10*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(12*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(13*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(14*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(15*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(16*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(17*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card10
+selected true
+xpos 4809
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d7b7de4-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(9*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve9
+label "\[value which]"
+xpos 3709
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d798d5e-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(9*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(11*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(12*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(13*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(14*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(15*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(16*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card9
+xpos 4609
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d7a5234-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(8*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve8
+label "\[value which]"
+xpos 3609
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d785330-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(8*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(10*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(11*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(12*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(13*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(14*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(15*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card8
+xpos 4409
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d7921ca-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(7*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve7
+label "\[value which]"
+xpos 3509
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d77232a-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(7*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(9*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(10*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(11*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(12*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(13*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(14*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card7
+xpos 4209
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d77f3c2-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(6*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve6
+label "\[value which]"
+xpos 3409
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d755a90-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(6*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(8*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(9*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(10*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(11*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(12*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(13*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card6
+xpos 4009
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d76bc28-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(5*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve5
+label "\[value which]"
+xpos 3309
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d742102-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(5*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(7*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(8*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(9*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(10*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(11*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(12*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card5
+xpos 3809
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d74f3b6-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(4*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve4
+label "\[value which]"
+xpos 3209
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d72dcde-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(4*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(6*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(7*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(8*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(9*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(10*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(11*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card4
+xpos 3609
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d73b028-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(3*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve3
+label "\[value which]"
+xpos 3109
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d717baa-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(3*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(5*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(6*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(7*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(8*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(9*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(10*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card3
+xpos 3409
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d726d4e-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(2*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve2
+label "\[value which]"
+xpos 3009
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d700586-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(2*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(4*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(5*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(6*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(7*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(8*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(9*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card2
+xpos 3209
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d70fc0c-2224-11ec-86fb-b06ebf3868fa
+}
+push $N10212a60
+push $N30cf7f10
+Dissolve {
+inputs 2
+which {{random(1*parent.seed)*parent.maxOpacityOffset}}
+name Dissolve1
+label "\[value which]"
+xpos 2909
+ypos 1036
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d6e66a4-2224-11ec-86fb-b06ebf3868fa
+}
+Card2 {
+translate {{(random(1*parent.seed)*(parent.maxTranslateOffsetX-(-1*parent.maxTranslateOffsetX))+(-1*parent.maxTranslateOffsetX))} {(random(3*parent.seed)*(parent.maxTranslateOffsetY-(-1*parent.maxTranslateOffsetY))+(-1*parent.maxTranslateOffsetY))} {(random(4*parent.seed)*(parent.maxTranslateOffsetZ-(-1*parent.maxTranslateOffsetZ))+(-1*parent.maxTranslateOffsetZ))}}
+rotate {{random(5*parent.seed)*(parent.maxRotateOffsetX-(-1*parent.maxRotateOffsetX))+(-1*parent.maxRotateOffsetX)} {random(6*parent.seed)*(parent.maxRotateOffsetY-(-1*parent.maxRotateOffsetY))+(-1*parent.maxRotateOffsetY)} {random(7*parent.seed)*(parent.maxRotateOffsetZ-(-1*parent.maxRotateOffsetZ))+(-1*parent.maxRotateOffsetZ)}}
+uniform_scale {{(random(8*parent.seed)*parent.maxScaleOffset)+parent.baseScale}}
+control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0 0 0} 
+1 {0 -0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {0.5 0 0} 
+1 {0.5 -0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666865 0} 1 {0 0 0} 1 {1 0 0} 
+1 {-0.5 0 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0 0.5 0} 
+1 {0 0 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {0.5 0.5 0} 
+1 {0.5 0 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0.1666666716 0} 1 {0 -0.1666666716 0} 1 {1 0.5 0} 
+1 {-0.5 0.5 0} 1 {0.1666666865 0 0} 1 {0 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0 1 0} 
+1 {0 0.5 0} 1 {0.1666666716 0 0} 1 {-0.1666666716 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {0.5 1 0} 
+1 {0.5 0.5 0} 1 {0 0 0} 1 {-0.1666666865 0 0} 1 {0 0 0} 1 {0 -0.1666666865 0} 1 {1 1 0} }
+name Card1
+xpos 3009
+ypos 1136
+addUserKnob {20 wpp}
+addUserKnob {18 pointPosition l "Point Position"}
+pointPosition {0 0 0}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d6f8caa-2224-11ec-86fb-b06ebf3868fa
+}
+push 0
+MergeGeo {
+inputs 11
+name MergeGeoFinal
+xpos 2959
+ypos 5621
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9d6c22cc-2224-11ec-86fb-b06ebf3868fa
+}
+TransformGeo {
+inputs 2
+name TransformGeo
+xpos 2958
+ypos 5701
+}
+Output {
+name Output1
+xpos 2958
+ypos 5787
+}
+end_group

@@ -1,0 +1,135 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+Dot {
+inputs 0
+name Dot2
+label MASK
+note_font_size 21
+selected true
+xpos 457
+ypos 989
+}
+push $cut_paste_input
+Dot {
+name Dot3
+label SOURCE
+note_font_size 20
+selected true
+xpos 81
+ypos 678
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 9ef556b8-61ad-11ec-8d45-b06ebf3868fa
+}
+set N1808c570 [stack 0]
+Remove {
+name Remove2
+tile_color 0x8e42ff
+selected true
+xpos 157
+ypos 767
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID fa2a65f2-61ab-11ec-8d45-b06ebf3868fa
+}
+Expression {
+expr0 (x+0.5)/width
+expr1 (y+0.5)/height
+name Expression2
+tile_color 0x8e42ff
+selected true
+xpos 157
+ypos 841
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID ec44f768-61ab-11ec-8d45-b06ebf3868fa
+}
+push $N1808c570
+Dot {
+name Dot5
+selected true
+xpos 311
+ypos 678
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 3469a3d0-61cb-11ec-8357-b06ebf3868fa
+}
+Dot {
+name Dot4
+tile_color 0xff000000
+label "TRANSFORM HERE"
+note_font_size 21
+selected true
+xpos 311
+ypos 894
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 2f73dcc4-61cb-11ec-8357-b06ebf3868fa
+}
+Merge2 {
+inputs 2
+operation from
+name Merge5
+tile_color 0x8e42ff
+selected true
+xpos 201
+ypos 897
+addUserKnob {20 Blending_Mode}
+addUserKnob {22 push_over l over T "nuke.thisNode()\['operation'].setValue('over')" +STARTLINE}
+addUserKnob {22 push_under l under -STARTLINE T "nuke.thisNode()\['operation'].setValue('under')"}
+addUserKnob {22 push_mask l mask T "nuke.thisNode()\['operation'].setValue('mask')" +STARTLINE}
+addUserKnob {22 push_stencil l stencil -STARTLINE T "nuke.thisNode()\['operation'].setValue('stencil')"}
+addUserKnob {22 push_min l min T "nuke.thisNode()\['operation'].setValue('min')" +STARTLINE}
+addUserKnob {22 push_max l max -STARTLINE T "nuke.thisNode()\['operation'].setValue('max')"}
+addUserKnob {22 push_from l from T "nuke.thisNode()\['operation'].setValue('from')" +STARTLINE}
+addUserKnob {22 push_plus l plus -STARTLINE T "nuke.thisNode()\['operation'].setValue('plus')"}
+addUserKnob {22 push_screen l screen T "nuke.thisNode()\['operation'].setValue('screen')" +STARTLINE}
+addUserKnob {22 push_overlay l overlay -STARTLINE T "nuke.thisNode()\['operation'].setValue('overlay')"}
+addUserKnob {22 push_atop l atop T "nuke.thisNode()\['operation'].setValue('atop')" +STARTLINE}
+addUserKnob {22 push_geometric l geometric -STARTLINE T "nuke.thisNode()\['operation'].setValue('geometric')"}
+addUserKnob {22 push_divide l divide T "nuke.thisNode()\['operation'].setValue('divide')" +STARTLINE}
+addUserKnob {22 push_multiply l multiply -STARTLINE T "nuke.thisNode()\['operation'].setValue('multiply')"}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 6cdddbbe-61ad-11ec-8d45-b06ebf3868fa
+}
+MergeExpression {
+inputs 2
+expr0 Br*Aa
+expr1 Bg*Aa
+name MergeExpression3
+tile_color 0x8e42ff
+selected true
+xpos 201
+ypos 992
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 6f707b12-61ac-11ec-8d45-b06ebf3868fa
+}
+push $N1808c570
+ShuffleCopy {
+inputs 2
+red red
+green green
+out forward
+name ShuffleCopy2
+tile_color 0x8e42ff
+label "\[value in]>\[value out]"
+selected true
+xpos 53
+ypos 986
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 99b2fcb0-61ac-11ec-8d45-b06ebf3868fa
+}
+IDistort {
+uv forward
+uv_scale 4800
+name IDistort2
+selected true
+xpos 53
+ypos 1070
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID aa7a1cf4-61ac-11ec-8d45-b06ebf3868fa
+}

@@ -1,0 +1,329 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push 0
+push $cut_paste_input
+Group {
+ inputs 2
+ name NoiseDisplace
+ tile_color 0x8e42ff
+ selected true
+ xpos 2955
+ ypos -335
+ addUserKnob {20 NoiseDisplace}
+ addUserKnob {26 Displace l <b>Displace}
+ addUserKnob {7 size l uv_scale R 0 100}
+ size 100
+ addUserKnob {41 filter T IDistort2.filter}
+ addUserKnob {26 _2 l <b>Noise}
+ addUserKnob {7 noiseSize l size R 0.01 1000}
+ noiseSize 90
+ addUserKnob {7 seed l z R 0 100}
+ seed 3.5
+ addUserKnob {3 octaves}
+ octaves 10
+ addUserKnob {6 clipAt l "clip at Nyquist limit" -STARTLINE}
+ clipAt true
+ addUserKnob {7 lacunarity R 1 10}
+ lacunarity 2
+ addUserKnob {7 gain R 0.1 1}
+ gain 0.5
+ addUserKnob {7 gamma}
+ gamma 0.5
+ addUserKnob {26 "" +STARTLINE}
+ addUserKnob {6 seamlessMask l "Seamless Mask" +STARTLINE}
+ seamlessMask true
+ addUserKnob {20 DirCTRL}
+ addUserKnob {7 plsy l ^}
+ plsy 1
+ addUserKnob {7 miny l v}
+ miny 1
+ addUserKnob {7 minx l <}
+ minx 1
+ addUserKnob {7 plsx l >}
+ plsx 1
+}
+ Input {
+  inputs 0
+  name Mask
+  xpos 123
+  ypos -168
+  number 1
+ }
+set N37c68d20 [stack 0]
+ Dot {
+  name Dot4
+  xpos 151
+  ypos 301
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 2b5a4e62-5eaa-11ec-ba5e-b06ebf3868fa
+ }
+ Input {
+  inputs 0
+  name In
+  xpos 728
+  ypos -349
+ }
+ Dot {
+  name Dot1
+  xpos 756
+  ypos -256
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 7c486e36-5ea4-11ec-ba5e-b06ebf3868fa
+ }
+set N32571060 [stack 0]
+ Dot {
+  name Dot5
+  xpos 535
+  ypos -256
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 813df38c-5eab-11ec-ba5e-b06ebf3868fa
+ }
+ Expression {
+  expr0 1
+  expr1 1
+  expr2 1
+  expr3 1
+  name Expression5
+  xpos 507
+  ypos 176
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 7fbf05d2-5eab-11ec-ba5e-b06ebf3868fa
+ }
+ Switch {
+  inputs 2
+  which {{!parent.seamlessMask}}
+  name Switch1
+  label "\[value which]"
+  xpos 507
+  ypos 298
+ }
+set N68409c60 [stack 0]
+push $N37c68d20
+ Dot {
+  name Dot3
+  xpos 1098
+  ypos -171
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 5d0b8642-5eaa-11ec-ba5e-b06ebf3868fa
+ }
+push $N32571060
+ Remove {
+  name Remove1
+  xpos 1669
+  ypos -259
+ }
+set N325a48e0 [stack 0]
+ Noise {
+  output {rgba.red -rgba.green -rgba.blue rgba.alpha}
+  size {{parent.noiseSize}}
+  zoffset {{parent.seed}}
+  octaves {{parent.octaves}}
+  nyquist {{parent.clipAt}}
+  lacunarity {{parent.lacunarity}}
+  gain {{parent.gain}}
+  gamma {{parent.gamma}}
+  center {1024 540}
+  name Noise15
+  selected true
+  xpos 1499
+  ypos -162
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 76fd477a-5e9b-11ec-afd9-b06ebf3868fa
+ }
+ Expression {
+  expr0 r*plsx
+  name Expression1
+  xpos 1499
+  ypos -100
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 47a4e966-5ea9-11ec-ba5e-b06ebf3868fa
+ }
+push $N325a48e0
+ Noise {
+  output {rgba.red -rgba.green -rgba.blue rgba.alpha}
+  size {{parent.noiseSize}}
+  zoffset {{parent.seed+1}}
+  octaves {{parent.octaves}}
+  nyquist {{parent.clipAt}}
+  lacunarity {{parent.lacunarity}}
+  gain {{parent.gain}}
+  gamma {{parent.gamma}}
+  center {1024 540}
+  name Noise16
+  xpos 1609
+  ypos -161
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 76fcaf0e-5e9b-11ec-afd9-b06ebf3868fa
+ }
+ Expression {
+  expr0 -1*(r*minx)
+  name Expression2
+  xpos 1609
+  ypos -105
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 6f112212-5ea9-11ec-ba5e-b06ebf3868fa
+ }
+ MergeExpression {
+  inputs 2
+  expr0 "Ar + Br"
+  name MergeExpression1
+  xpos 1499
+  ypos -33
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 76fbfeba-5e9b-11ec-afd9-b06ebf3868fa
+ }
+push $N325a48e0
+ Noise {
+  output {-rgba.red rgba.green -rgba.blue rgba.alpha}
+  size {{parent.noiseSize}}
+  zoffset {{parent.seed+2}}
+  octaves {{parent.octaves}}
+  nyquist {{parent.clipAt}}
+  lacunarity {{parent.lacunarity}}
+  gain {{parent.gain}}
+  gamma {{parent.gamma}}
+  center {1024 540}
+  name Noise17
+  xpos 1772
+  ypos -163
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 76fb70f8-5e9b-11ec-afd9-b06ebf3868fa
+ }
+ Expression {
+  expr1 g*plsy
+  name Expression3
+  xpos 1772
+  ypos -113
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 90eef74c-5ea9-11ec-ba5e-b06ebf3868fa
+ }
+push $N325a48e0
+ Noise {
+  output {-rgba.red rgba.green -rgba.blue rgba.alpha}
+  size {{parent.noiseSize}}
+  zoffset {{parent.seed+3}}
+  octaves {{parent.octaves}}
+  nyquist {{parent.clipAt}}
+  lacunarity {{parent.lacunarity}}
+  gain {{parent.gain}}
+  gamma {{parent.gamma}}
+  center {1024 540}
+  name Noise18
+  xpos 1882
+  ypos -164
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 604ea61e-5e90-11ec-abc8-b06ebf3868fa
+ }
+ Expression {
+  expr1 g*miny*-1
+  name Expression7
+  xpos 1882
+  ypos -104
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 6daaa72c-5e90-11ec-abc8-b06ebf3868fa
+ }
+ MergeExpression {
+  inputs 2
+  expr1 "Ag + Bg"
+  name MergeExpression3
+  xpos 1772
+  ypos -56
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 76f9886a-5e9b-11ec-afd9-b06ebf3868fa
+ }
+ Dot {
+  name Dot2
+  xpos 1800
+  ypos 16
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 57e1a86e-5ea4-11ec-ba5e-b06ebf3868fa
+ }
+ MergeExpression {
+  inputs 2
+  expr0 Ar
+  expr1 Bg
+  name MergeExpression2
+  xpos 1499
+  ypos 19
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 81204794-5e90-11ec-abc8-b06ebf3868fa
+ }
+ MergeExpression {
+  inputs 2
+  expr0 Br*Aa
+  expr1 Bg*Aa
+  name MergeExpression4
+  xpos 1070
+  ypos 19
+  disable {{!parent.seamlessMask}}
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 5a1fdcf8-5eaa-11ec-ba5e-b06ebf3868fa
+ }
+push $N32571060
+add_layer {displace displace.red displace.green displace.blue displace.alpha}
+ ShuffleCopy {
+  inputs 2
+  red red
+  green green
+  blue blue
+  out displace
+  name ShuffleCopy1
+  label "\[value in]>\[value out]"
+  xpos 728
+  ypos 13
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 8f706d06-5e90-11ec-abc8-b06ebf3868fa
+ }
+ IDistort {
+  inputs 1+1
+  uv displace
+  uv_scale {{parent.size}}
+  name IDistort2
+  xpos 728
+  ypos 298
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID a115d46a-5e90-11ec-abc8-b06ebf3868fa
+ }
+set N31ea1670 [stack 0]
+ Output {
+  name Output1
+  xpos 728
+  ypos 484
+ }
+push $N31ea1670
+push $N68409c60
+ Viewer {
+  inputs 2
+  frame 51
+  frame_range 1-100
+  input_number 1
+  colour_sample_bbox {-0.0244140625 0.2255859375 -0.0234375 0.2265625}
+  viewerProcess "Rec.709 (ACES)"
+  name Viewer1
+  xpos 1022
+  ypos -1017
+  addUserKnob {20 vgas l Vgas}
+  addUserKnob {1 nativeUID +DISABLED}
+  nativeUID 87848348-5ea4-11ec-ba5e-b06ebf3868fa
+ }
+end_group

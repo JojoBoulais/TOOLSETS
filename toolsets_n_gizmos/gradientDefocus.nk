@@ -1,0 +1,813 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push $cut_paste_input
+Group {
+name GradientDefocus
+knobChanged "\nimport nuke\n\n\nimport nuke\n\n\ndef getDefaultNode():\n    nodes = \{\}\n\n    nodes\['input'] = nuke.toNode('input')\n    nodes\['gradient'] = nuke.toNode('Gradient')\n    nodes\['mask'] = nuke.toNode('Mask')\n    nodes\['Defocus_'] = nuke.toNode('Defocus_')\n    nodes\['output'] = nuke.toNode('Output1')\n    nodes\['blend'] = nuke.toNode('blend')\n\n    return nodes\n\n\ndef createExpressionNodes(i, nodes, stepsV):\n    expression = nuke.createNode('Expression', inpanel=False)\n    expression.setInput(0, nodes\['gradient'])\n    expression\['expr3'].setValue('a>\{0\}?1:0'.format(float(1/float(stepsV)) * i))\n    expression\['ypos'].setValue(nodes\['gradient']\['ypos'].value() + 100)\n    expression\['xpos'].setValue(nodes\['gradient']\['xpos'].value() + 100*i)\n\n\ndef createStepDefocusNodes(i, nodes):\n    defocus = nuke.createNode('Defocus', inpanel=False)\n    defocus.setName('stepdefocus\{0\}'.format(i))\n    expression = nuke.toNode('Expression\{0\}'.format(i))\n    defocus.setInput(0, expression)\n    defocus\['ypos'].setValue(expression\['ypos'].value()+100)\n    defocus\['xpos'].setValue(expression\['xpos'].value())\n    defocus\['channels'].setExpression('Defocus_.channels')\n    defocus\['quality'].setExpression('Defocus_.quality')\n    defocus\['method'].setValue(nodes\['Defocus_']\['method'].value())\n    defocus\['ratio'].setExpression('Defocus_.ratio')\n    defocus\['defocus'].setExpression('parent.stepsDefocus')\n\n\ndef createDefocusNodes(i, nodes, stepsV):\n    defocus = nuke.createNode('Defocus', inpanel=False)\n    defocus.setName('defocus\{0\}'.format(i))\n    defocus.setInput(0, nodes\['input'])\n    defocus\['ypos'].setValue(nodes\['input']\['ypos'].value() + 100 * i)\n    defocus\['xpos'].setValue(nodes\['input']\['xpos'].value() + 100 * i)\n    defocus\['channels'].setExpression('Defocus_.channels')\n    defocus\['quality'].setExpression('Defocus_.quality')\n    defocus\['method'].setValue(nodes\['Defocus_']\['method'].value())\n    defocus\['ratio'].setExpression('Defocus_.ratio')\n    defocus\['defocus'].setExpression('\{0\}*(parent.defocus/parent.steps)*(\{0\}/\{1\})'.format(float(i), stepsV))\n\n\ndef createKeyMix(i, nodes):\n    keymix = nuke.createNode('Keymix', inpanel=False)\n    keymix.setName('keymix\{0\}'.format(i))\n    if i == 1:\n        keymix.setInput(0, nodes\['input'])\n    else:\n        keymix.setInput(0, nuke.toNode('keymix\{0\}'.format(i-1)))\n    keymix.setInput(1, nuke.toNode('defocus\{0\}'.format(i)))\n    keymix.setInput(2, nuke.toNode('stepdefocus\{0\}'.format(i)))\n    keymix\['xpos'].setValue(nuke.toNode('defocus\{0\}'.format(i))\['xpos'].value()-50)\n    keymix\['ypos'].setValue(nuke.toNode('defocus\{0\}'.format(i))\['ypos'].value() + 100)\n\n\ndef keepDefaultNodes(nodes):\n\n    allNodes = nuke.allNodes()\n    for node in nodes.values():\n        allNodes.remove(node)\n\n    for node in allNodes:\n        nuke.delete(node)\n\n    del(allNodes)\n\n\ndef main():\n    n = nuke.thisNode()\n    k = nuke.thisKnob()\n    steps = n\['steps']\n    stepsV = int(steps.value())\n    if k == steps:\n        if k.value() < 1:\n            k.setValue(1)\n            stepsV = 1\n\n        with n:\n            nodes = getDefaultNode()\n            keepDefaultNodes(nodes)\n            i = 1\n            for i in range(1, stepsV+2, 1):\n                createExpressionNodes(i, nodes, stepsV)\n                createStepDefocusNodes(i, nodes)\n                createDefocusNodes(i, nodes, stepsV)\n                createKeyMix(i, nodes)\n            nodes\['blend'].setInput(1, nuke.toNode('keymix\{0\}'.format(i)))\n            \n\nmain()\n\n\n"
+tile_color 0xcc804eff
+label "\[value defocus]"
+selected true
+xpos 26048
+ypos 1940
+addUserKnob {20 User}
+addUserKnob {3 steps l Steps}
+steps 15
+addUserKnob {7 stepsDefocus l "Steps Defocus" R 0 100}
+stepsDefocus 50
+addUserKnob {26 ""}
+addUserKnob {41 channels T Defocus_.channels}
+addUserKnob {41 ratio l "aspect ratio" T Defocus_.ratio}
+addUserKnob {7 defocus R 0 1000}
+addUserKnob {41 quality T Defocus_.quality}
+addUserKnob {41 method T Defocus_.method}
+addUserKnob {7 mix}
+mix 1
+}
+Input {
+inputs 0
+name Mask
+xpos 2974
+ypos 4339
+number 2
+}
+Input {
+inputs 0
+name Gradient
+xpos 752
+ypos -119
+number 1
+}
+set N1a609400 [stack 0]
+Expression {
+expr3 a>1.06666666667?1:0
+name Expression16
+xpos 2352
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151fca14-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus16
+label "\[value defocus]"
+xpos 2352
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15202432-3010-11ec-adfb-b06ebf3868fa
+}
+Input {
+inputs 0
+name input
+xpos 297
+ypos 96
+}
+set N1a62a320 [stack 0]
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{16.0*(parent.defocus/parent.steps)*(16.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus16
+label "\[value defocus]"
+xpos 1897
+ypos 1696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1520907a-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>1.0?1:0
+name Expression15
+xpos 2252
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151de1c2-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus15
+label "\[value defocus]"
+xpos 2252
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151e3a0a-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{15.0*(parent.defocus/parent.steps)*(15.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus15
+label "\[value defocus]"
+xpos 1797
+ypos 1596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151f2744-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.933333333333?1:0
+name Expression14
+xpos 2152
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151c9f2e-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus14
+label "\[value defocus]"
+xpos 2152
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151cf64a-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{14.0*(parent.defocus/parent.steps)*(14.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus14
+label "\[value defocus]"
+xpos 1697
+ypos 1496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151d53ba-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.866666666667?1:0
+name Expression13
+xpos 2052
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151b5f4c-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus13
+label "\[value defocus]"
+xpos 2052
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151bb92e-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{13.0*(parent.defocus/parent.steps)*(13.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus13
+label "\[value defocus]"
+xpos 1597
+ypos 1396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151c152c-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.8?1:0
+name Expression12
+xpos 1952
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151a198e-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus12
+label "\[value defocus]"
+xpos 1952
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151a72a8-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{12.0*(parent.defocus/parent.steps)*(12.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus12
+label "\[value defocus]"
+xpos 1497
+ypos 1296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151ad144-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.733333333333?1:0
+name Expression11
+xpos 1852
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1518cfde-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus11
+label "\[value defocus]"
+xpos 1852
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1519288a-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{11.0*(parent.defocus/parent.steps)*(11.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus11
+label "\[value defocus]"
+xpos 1397
+ypos 1196
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1519894c-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.666666666667?1:0
+name Expression10
+xpos 1752
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1517855c-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus10
+label "\[value defocus]"
+xpos 1752
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1517e222-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{10.0*(parent.defocus/parent.steps)*(10.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus10
+label "\[value defocus]"
+xpos 1297
+ypos 1096
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15183fd8-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.6?1:0
+name Expression9
+xpos 1652
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15161852-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus9
+label "\[value defocus]"
+xpos 1652
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15167db0-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{9.0*(parent.defocus/parent.steps)*(9.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus9
+label "\[value defocus]"
+xpos 1197
+ypos 996
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1516f6aa-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.533333333333?1:0
+name Expression8
+xpos 1552
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1514d460-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus8
+label "\[value defocus]"
+xpos 1552
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15153860-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{8.0*(parent.defocus/parent.steps)*(8.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus8
+label "\[value defocus]"
+xpos 1097
+ypos 896
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15159616-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.466666666667?1:0
+name Expression7
+xpos 1452
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15138966-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus7
+label "\[value defocus]"
+xpos 1452
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1513f356-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{7.0*(parent.defocus/parent.steps)*(7.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus7
+label "\[value defocus]"
+xpos 997
+ypos 796
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15145116-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.4?1:0
+name Expression6
+xpos 1352
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151240d8-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus6
+label "\[value defocus]"
+xpos 1352
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1512a7ee-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{6.0*(parent.defocus/parent.steps)*(6.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus6
+label "\[value defocus]"
+xpos 897
+ypos 696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1513057c-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.333333333333?1:0
+name Expression5
+xpos 1252
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1510f0ac-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus5
+label "\[value defocus]"
+xpos 1252
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15115858-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{5.0*(parent.defocus/parent.steps)*(5.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus5
+label "\[value defocus]"
+xpos 797
+ypos 596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1511b6fe-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.266666666667?1:0
+name Expression4
+xpos 1152
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150f8ee2-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus4
+label "\[value defocus]"
+xpos 1152
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15100264-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{4.0*(parent.defocus/parent.steps)*(4.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus4
+label "\[value defocus]"
+xpos 697
+ypos 496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15106876-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.2?1:0
+name Expression3
+xpos 1052
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150d0b90-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus3
+label "\[value defocus]"
+xpos 1052
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150d8fc0-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{3.0*(parent.defocus/parent.steps)*(3.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus3
+label "\[value defocus]"
+xpos 597
+ypos 396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150e494c-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.133333333333?1:0
+name Expression2
+xpos 952
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150964e0-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus2
+label "\[value defocus]"
+xpos 952
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150aa0d0-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{2.0*(parent.defocus/parent.steps)*(2.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus2
+label "\[value defocus]"
+xpos 497
+ypos 296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150bbd8a-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a609400
+Expression {
+expr3 a>0.0666666666667?1:0
+name Expression1
+xpos 852
+ypos -19
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1507a272-3010-11ec-adfb-b06ebf3868fa
+}
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{parent.stepsDefocus}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name stepdefocus1
+label "\[value defocus]"
+xpos 852
+ypos 81
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15086d06-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Defocus {
+channels {{{Defocus_.channels}}}
+defocus {{1.0*(parent.defocus/parent.steps)*(1.0/15)}}
+ratio {{Defocus_.ratio}}
+quality {{Defocus_.quality}}
+name defocus1
+label "\[value defocus]"
+xpos 397
+ypos 196
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1508d7a0-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Keymix {
+inputs 3
+name keymix1
+xpos 347
+ypos 296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15092b1a-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix2
+xpos 447
+ypos 396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150c7b80-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix3
+xpos 547
+ypos 496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 150eb45e-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix4
+xpos 647
+ypos 596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1510b72c-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix5
+xpos 747
+ypos 696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1512037a-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix6
+xpos 847
+ypos 796
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1513523e-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix7
+xpos 947
+ypos 896
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15149e5a-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix8
+xpos 1047
+ypos 996
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1515e29c-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix9
+xpos 1147
+ypos 1096
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15174420-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix10
+xpos 1247
+ypos 1196
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 15188dee-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix11
+xpos 1347
+ypos 1296
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1519e158-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix12
+xpos 1447
+ypos 1396
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151b296e-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix13
+xpos 1547
+ypos 1496
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151c6ae0-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix14
+xpos 1647
+ypos 1596
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151daa4a-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix15
+xpos 1747
+ypos 1696
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 151f9044-3010-11ec-adfb-b06ebf3868fa
+}
+Keymix {
+inputs 3
+name keymix16
+xpos 1847
+ypos 1796
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 1520e0d4-3010-11ec-adfb-b06ebf3868fa
+}
+push $N1a62a320
+Blend {
+inputs 2+1
+weight0 {{1-parent.mix}}
+weight1 {{parent.mix}}
+name blend
+xpos 2714
+ypos 4333
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID eeb26622-2df6-11ec-aa46-b06ebf3868fa
+}
+Output {
+name Output1
+xpos 2714
+ypos 4412
+}
+push $N1a62a320
+Defocus {
+defocus {{parent.defocus}}
+quality 10
+name Defocus_
+knobChanged "\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\ndef getDefaultNode():\n    nodes = \{\}\n    \n    nodes\['input'] = nuke.toNode('input')\n    nodes\['gradient'] = nuke.toNode('Gradient')\n    nodes\['mask'] = nuke.toNode('Mask')\n    nodes\['Defocus_'] = nuke.toNode('Defocus_')\n    nodes\['output'] = nuke.toNode('Output1')\n    nodes\['blend'] = nuke.toNode('blend')\n    \n    return nodes\n\n\ndef changeMethod(nodes):\n    defocusNs = nuke.allNodes('Defocus')\n    defocusNs.remove(nodes\['Defocus_'])\n\n    for defocus in defocusNs:\n        defocus\['method'].setValue(nodes\['Defocus_']\['method'].value())\n\n\nif k == n\['method']:\n    nodes = getDefaultNode()\n    changeMethod(nodes)\n\n        \n"
+label "\[value defocus]"
+xpos 431
+ypos 45
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 5c8a17f4-2dfb-11ec-aa46-b06ebf3868fa
+}
+end_group

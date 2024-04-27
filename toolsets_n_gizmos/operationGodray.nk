@@ -1,0 +1,130 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push $cut_paste_input
+Group {
+name operationGodRay
+knobChanged "\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\nif k.name() == 'operation':\n    if k.value() == 'plus':\n        n\['average'].setValue(True)\n        n\['average'].setEnabled(True)\n    else:\n        n\['average'].setValue(False)\n        n\['average'].setEnabled(False)\n\n\n"
+tile_color 0xff4c0000
+selected true
+xpos -533
+ypos 450
+addUserKnob {20 User}
+addUserKnob {4 operation M {plus max screen "" ""}}
+addUserKnob {6 average l "Average Result" -STARTLINE}
+average true
+addUserKnob {3 iters l iterations}
+iters 50
+addUserKnob {6 atop l "On Top Of Source" +STARTLINE}
+addUserKnob {6 bidirectionnal +STARTLINE}
+bidirectionnal true
+addUserKnob {26 ""}
+addUserKnob {41 matrix T Transform1.matrix}
+addUserKnob {41 translate T Transform1.translate}
+addUserKnob {41 rotate T Transform1.rotate}
+addUserKnob {7 scale R -10 10}
+addUserKnob {4 scalechoice l "" -STARTLINE M {Spiral "circular (heavy)" ""}}
+}
+Input {
+inputs 0
+name Input1
+xpos 841
+ypos -123
+}
+set Nea59580 [stack 0]
+Position {
+translate {{-parent.Transform1.translate.x} {-parent.Transform1.translate.y}}
+name Position7
+xpos 841
+ypos -39
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 0aa71048-6ef3-11ec-bdac-b06ebf3868fa
+}
+set Nea44910 [stack 0]
+BlinkScript {
+recompileCount 192
+ProgramGroup 1
+KernelDescription "2 \"bilinearTransformation\" iterate pixelWise 2deaf12b1af7100c30212c42857cae5538fc4ed62ad19bebe7b56a29fccb5de6 2 \"src\" Read Random \"dst\" Write Random 10 \"translate\" Float 2 AAAAAAAAAAA= \"rotate\" Float 1 AAAAAA== \"scale\" Float 1 AAAAAA== \"center\" Float 2 AAAAAAAAAAA= \"iterations\" Int 1 AAAAAA== \"average\" Bool 1 AA== \"operation\" Int 1 AAAAAA== \"bidirect\" Bool 1 AA== \"scaleC\" Int 1 AAAAAA== \"atop\" Bool 1 AA== 10 \"translate\" 2 1 \"rotate\" 1 1 \"scale\" 1 1 \"center\" 2 1 \"iterations\" 1 1 \"average\" 1 1 \"operation\" 1 1 \"bidirect\" 1 1 \"scaleC\" 1 1 \"atop\" 1 1 4 \"output\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA== \"temp\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA== \"tempinv\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA== \"resolution\" Int 2 1 AAAAAAAAAAA="
+kernelSource "kernel bilinearTransformation : ImageComputationKernel<ePixelWise>\n\{\n  Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n  Image<eWrite, eAccessRandom, eEdgeClamped> dst; // the output image\n\n  param:\n    // This parameter is made available to the user.\n\tfloat2 translate;\n\tfloat rotate;\n\tfloat scale;\n\tfloat2 center;\n\tint iterations;\n\tbool average;\n\tint operation;\n\tbool bidirect;\n\tint scaleC;\n\tbool atop;\n\n  local:\n    // This local variable is not exposed to the user.\n\n    float4 output;\n    float4 temp;\n    float4 tempinv;\n    int2 resolution;\n\n\n  void init() \{\n    \n    resolution.x = src.bounds.width();\n    resolution.y = src.bounds.height();\n\n  \}\n\n  void process(int2 pos) \{\n\n\tint iters = iterations;\n\n\tif(atop)\{\n    \n\t\n\t\n\toutput = src(pos.x, pos.y);\n\t\}\n\telse\n\t\{\n\toutput = \{0, 0, 0, 0\};\n\titers = iterations+ 1;\n\t\}\n\t\n\tfor (int i \{1\} ; i <= iters; i++)\n\{\n\n\ttemp = \{0,0,0,0\};\n\ttempinv = \{0,0,0,0\};\n\tfloat3x3 Matrix;\n\tfloat currentRotate;\n\tcurrentRotate = rotate/iters * i * 3.1415/180;\n\tMatrix\[0]\[0] = cos(currentRotate);\n\tMatrix\[0]\[1] = -sin(currentRotate);\n\tMatrix\[1]\[0] = sin(currentRotate);\n\tMatrix\[1]\[1] = cos(currentRotate);\n\n\tMatrix\[0]\[2] = translate.x;\n\tMatrix\[1]\[2] = translate.y;\n\n\tfloat posxOut = ((pos.x)*Matrix\[0]\[0]) + ((pos.y) * Matrix\[0]\[1]);\n\tfloat posyOut = (((pos.x)*Matrix\[1]\[0]) + ((pos.y) * Matrix\[1]\[1]));\n\tfloat posxOutinv = ((pos.x)*Matrix\[0]\[0]) + ((pos.y) * Matrix\[1]\[0]);\n\tfloat posyOutinv = (((pos.x)*Matrix\[0]\[1]) + ((pos.y) * Matrix\[1]\[1]));\n\t\n\tif(scaleC == 1)\n\t\{ \n\tfor(int ii\{1\}; ii <= iters; ii++)\n\t\{\n\ttemp += bilinear(src, posxOut * (1+(fabs(1-scale/iters * ii))), posyOut * (1+(fabs(1-scale/iters * ii))));\n\ttempinv += bilinear(src, posxOutinv * (1+(fabs(1-scale/iters * ii))), posyOutinv * (1+(fabs(1-scale/iters * ii))));\n\t\}\n\ttemp = temp / iters;\n\ttempinv = tempinv / iters;\n\t\}\n\tif(scaleC == 0)\n\t\{\n\ttemp += bilinear(src, posxOut * (1+(scale/iters * i)), posyOut * (1+(scale/iters * i)));\n\ttempinv += bilinear(src, posxOutinv * (1+(scale/iters * i)), posyOutinv * (1+(scale/iters * i)));\n\t\n\t\}\n\tif(operation == 2)\n\t\{\n\n\t\n\toutput.x = output.x<=1 || temp.x<=1 ? (output.x + temp.x) - output.x*temp.x : max(output.x, temp.x);\n\toutput.y = output.y<=1 || temp.y<=1 ? (output.y + temp.y) - output.y*temp.y : max(output.y, temp.y);\n\toutput.z = output.z<=1 || temp.z<=1 ? (output.z + temp.z) - output.z*temp.z : max(output.z, temp.z);\n\tif(bidirect)\n\t\{\n\toutput.x = output.x<=1 || tempinv.x<=1 ? (output.x + tempinv.x) - output.x*tempinv.x : max(output.x, tempinv.x);\n\toutput.y = output.y<=1 || tempinv.y<=1 ? (output.y + tempinv.y) - output.y*tempinv.y : max(output.y, tempinv.y);\n\toutput.z = output.z<=1 || tempinv.z<=1 ? (output.z + tempinv.z) - output.z*tempinv.z : max(output.z, tempinv.z);\n\t\}\n\t\}\n\n\telse if(operation == 1)\n\t\{\n\toutput.x =  max(output.x, temp.x);\n\toutput.y =  max(output.y, temp.y);\n\toutput.z =  max(output.z, temp.z);\n\tif(bidirect)\n\t\{\n\toutput.x =  max(output.x, tempinv.x);\n\toutput.y =  max(output.y, tempinv.y);\n\toutput.z =  max(output.z, tempinv.z);\n\t\}\n\t\}\n\telse if(operation == 0)\n\t\{\n\toutput += temp;\n\tif(bidirect)\n\t\{\n\toutput += tempinv;\n\t\}\n\t\}\n\n\t \n\}\n\n\tif(average)\n\t\{\n\tif (bidirect)\n\t\{\n\toutput = output/((iters*2) +1 );\n\t\}\n\telse\n\t\{\n\toutput = output/(iters+1);\n\t\}\n\t\}\n\t\n\n\n\n    dst(pos.x, pos.y ) = output;\n\n\n\n  \}\n\};\n"
+rebuild ""
+bilinearTransformation_translate {{translate.x} {translate.y}}
+bilinearTransformation_rotate {{rotate}}
+bilinearTransformation_scale {{scale}}
+bilinearTransformation_center {{center.x} {center.y}}
+bilinearTransformation_iterations {{iterations}}
+bilinearTransformation_average {{average}}
+bilinearTransformation_operation {{operation}}
+bilinearTransformation_bidirect {{bidirect}}
+bilinearTransformation_scaleC {{scaleC}}
+bilinearTransformation_atop {{atop}}
+rebuild_finalise ""
+name BlinkScript24
+xpos 841
+ypos 59
+addUserKnob {20 User}
+addUserKnob {3 scaleC}
+scaleC {{scalechoice}}
+addUserKnob {3 iterations}
+iterations {{parent.iters}}
+addUserKnob {12 center}
+center {955 260}
+addUserKnob {7 rotate R -360 360}
+rotate {{parent.Transform1.rotate}}
+addUserKnob {7 scale R 0 5}
+scale {{parent.scale}}
+addUserKnob {6 average +STARTLINE}
+average {{parent.average}}
+addUserKnob {3 operation}
+operation {{parent.operation}}
+addUserKnob {6 bidirect +STARTLINE}
+bidirect {{bidirectionnal}}
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 2b626618-6e60-11ec-ae14-b06ebf3868fa
+}
+set N2018cc10 [stack 0]
+Position {
+translate {{Transform1.translate.x} {"Transform1.translate.y "}}
+name Position1
+xpos 841
+ypos 180
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 0aa71048-6ef3-11ec-bdac-b06ebf3868fa
+}
+Output {
+name Output1
+xpos 841
+ypos 247
+}
+push $N2018cc10
+push $Nea44910
+Viewer {
+inputs 2
+frame 1036
+frame_range 1-1168
+input_number 1
+full_frame_processing true
+viewerProcess "Rec.709 (ACES)"
+name Viewer1
+xpos 557
+ypos -30
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 79b0acf6-6ef3-11ec-bdac-b06ebf3868fa
+}
+push $Nea59580
+Transform {
+translate {2170 1114}
+rotate 180
+scale {{parent.scale*-1 x1073 0 x1075 0}}
+shutteroffset centred
+name Transform1
+selected true
+xpos 951
+ypos -123
+addUserKnob {20 vgas l Vgas}
+addUserKnob {1 nativeUID +DISABLED}
+nativeUID 34d2bb92-6ef3-11ec-bdac-b06ebf3868fa
+}
+end_group

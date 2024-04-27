@@ -1,0 +1,27 @@
+set cut_paste_input [stack 0]
+version 12.0 v3
+push $cut_paste_input
+BlinkScript {
+ recompileCount 82
+ ProgramGroup 1
+ KernelDescription "2 \"bilinearTransformation\" iterate pixelWise 3098aca01db7a1fa1bf3cb6b55742de93eadd11b389c0c730aac9de5e329b020 2 \"src\" Read Random \"dst\" Write Point 4 \"translate\" Float 2 AAAAAAAAAAA= \"rotate\" Float 1 AAAAAA== \"scale\" Float 2 AAAAAAAAAAA= \"center\" Float 2 AAAAAAAAAAA= 4 \"translate\" 2 1 \"rotate\" 1 1 \"scale\" 2 1 \"center\" 2 1 2 \"output\" Float 4 1 AAAAAAAAAAAAAAAAAAAAAA== \"resolution\" Int 2 1 AAAAAAAAAAA="
+ kernelSource "kernel bilinearTransformation : ImageComputationKernel<ePixelWise>\n\{\n  Image<eRead, eAccessRandom, eEdgeClamped> src; // the input image\n  Image<eWrite> dst; // the output image\n\n  param:\n    // This parameter is made available to the user.\n\tfloat2 translate;\n\tfloat rotate;\n\tfloat2 scale;\n\tfloat2 center;\n\n  local:\n    // This local variable is not exposed to the user.\n\n    float4 output;\n    int2 resolution;\n\n  // In define(), parameters can be given labels and default values.\n  void define() \{\n    \n  \}\n\n  // The init() function is run before any calls to process().\n  // Local variables can be initialized here.\n  void init() \{\n    \n    resolution.x = src.bounds.width();\n    resolution.y = src.bounds.height();\n\n  \}\n\n  void process(int2 pos) \{\n    \n\tfloat3x3 Matrix;\n\n\tMatrix\[0]\[0] = cos(rotate);\n\tMatrix\[0]\[1] = -sin(rotate);\n\tMatrix\[1]\[0] = sin(rotate);\n\tMatrix\[1]\[1] = cos(rotate);\n\n\tMatrix\[0]\[2] = translate.x;\n\tMatrix\[1]\[2] = translate.y;\n\n\tfloat posxOut = ((pos.x)*Matrix\[0]\[0] + (pos.y) * Matrix\[0]\[1]) + Matrix\[0]\[2];\n\tfloat posyOut = ((pos.x)*Matrix\[1]\[0] + (pos.y) * Matrix\[1]\[1]) + Matrix\[1]\[2];\n\n    // Write the result to the output image\n\n\n    dst() = bilinear(src, posxOut, posyOut);\n\n\n\n  \}\n\};\n"
+ rebuild ""
+ bilinearTransformation_rotate 0.968
+ bilinearTransformation_center {{center.x} {center.y}}
+ rebuild_finalise ""
+ name BlinkScript10
+ selected true
+ xpos 7167
+ ypos 1275
+ addUserKnob {20 User}
+ addUserKnob {12 center}
+ addUserKnob {12 translate}
+ addUserKnob {7 rotate R -360 360}
+ rotate -126
+ addUserKnob {12 scale}
+ scale {1 1}
+ addUserKnob {20 vgas l Vgas +INVISIBLE}
+ addUserKnob {1 nativeUID +DISABLED +INVISIBLE}
+ nativeUID 24001270-43f5-11ec-8298-b06ebf3868fa
+}
