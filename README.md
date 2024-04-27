@@ -1,5 +1,5 @@
 # TOOLSETS
-Liste of toolsets I made.
+List of toolsets I made.
 
 
 RotoPaint Brush - http://www.nukepedia.com/toolsets/draw/rotopaintbrush\n
